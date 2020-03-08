@@ -1,9 +1,24 @@
+# ee.pypr, philippe rufin 2020
+# philippe.rufin@googlemail.com
+#######################################################
+# LND function returns quality-masked TM, ETM+, and OLI
+# collections, renamed B, G, R, NIR, SWIR1, SWIR2 to
+# blue, green, red, nir, swir1, swir2 for consistent use.
+#######################################################
+# startDate and endDate to be provided as datetime
+# mark beginning and end of collection period.
+#######################################################
+
+# todo: L8 harmonization
+
 import ee
 import datetime
 import fct.cld
 
+
 # todo: make roi optional, if null don´t filter
 def LND_roi(roi, startDate, endDate):
+    # todo: make sure start and endDate are datetime objects
 
     l4 = ee.ImageCollection('LANDSAT/LT04/C01/T1_SR')\
         .filterDate(startDate, endDate)\
@@ -59,5 +74,3 @@ def LND_glob(startDate, endDate):
     lnd = lnd.map(fct.cld.maskQuality)
 
     return lnd
-
-

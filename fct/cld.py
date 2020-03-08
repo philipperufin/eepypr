@@ -1,3 +1,10 @@
+# ee.pypr, philippe rufin 2020
+# philippe.rufin@googlemail.com
+#######################################################
+# maskQuality function returns quality-masked image,
+# removes cloud, cloud shadow, snow & ice
+#######################################################
+
 import ee
 
 def getQABit(image, start, end, newName):
@@ -6,7 +13,7 @@ def getQABit(image, start, end, newName):
         pattern += 2 ** i
     return image.select([0], [newName]).bitwiseAnd(pattern).rightShift(start)
 
-
+# todo: add option to choose QAbits for water / snow & ice / cloud conf
 def maskClouds(image):
 
     QA = image.select(['pixel_qa'])

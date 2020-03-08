@@ -1,3 +1,18 @@
+# ee.pypr, philippe rufin 2020
+# philippe.rufin@googlemail.com
+#######################################################
+# TSS function returns pixel-wise time series from
+#######################################################
+# TM, ETM+, and OLI blue, green, red, nir, swir1, swir2
+# bands
+#######################################################
+# point_shape is path to point shapefile,
+# startDate and endDate to be provided as datetime
+# mark beginning and end of collection period
+# write = True produces csv file, as defined in
+# out_path containing results
+#######################################################
+
 import ee
 import datetime
 import numpy as np
