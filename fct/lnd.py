@@ -2,6 +2,7 @@ import ee
 import datetime
 import fct.cld
 
+# todo: make roi optional, if null don´t filter
 def LND_roi(roi, startDate, endDate):
 
     l4 = ee.ImageCollection('LANDSAT/LT04/C01/T1_SR')\

@@ -43,6 +43,7 @@ def TSI(point_shape, startDate, endDate, interval, aggregation, write, out_path)
                 sceneID = val[0]
                 sceneID = sceneID[sceneID.find("L"):]
                 val[0] = sceneID
+                # todo: add date info to list
                 #val.append(sceneID[12:])
                 val_reduced.append(val)
 
@@ -50,9 +51,11 @@ def TSI(point_shape, startDate, endDate, interval, aggregation, write, out_path)
         tsi_list.append(val_reduced)
         feat = layer.GetNextFeature()
 
+    # todo: add date info to list
     for entry in tsi_list:
         print(entry[2][0][12:])
 
+    # todo: aggregate based on dates
     steps = int(np.floor(abs(startDate - endDate).days / interval))
     stepsize = datetime.timedelta(days=interval)
     print('Aggregating Landsat at ' + str(interval) + ' day intervals using ' + aggregation)
