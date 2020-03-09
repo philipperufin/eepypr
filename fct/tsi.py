@@ -8,54 +8,9 @@ import fct.lnd
 
 def TSI(point_shape, startDate, endDate, interval, aggregation, write, out_path):
 
-    collection = fct.lnd.LND_glob(startDate, endDate)
+    coll = fct.lnd.LND_glob(startDate, endDate)\
+        .select(['blue', 'green', 'red', 'nir', 'swir1', 'swir2'])
 
-    #print('Aggregation completed yielding ' + str(len(tsi.bandNames)) + ' bands.')
-    tsi_list = []
-
-    driver = ogr.GetDriverByName("ESRI Shapefile")
-    dataSource = driver.Open(point_shape, 0)
-    layer = dataSource.GetLayer()
-    feat = layer.GetNextFeature()
-
-    while feat:
-        id = feat.GetField("ID")
-        print("point id " + str(id))
-
-        xCoord = feat.GetGeometryRef().GetPoint()[0]
-        yCoord = feat.GetGeometryRef().GetPoint()[1]
-        pts = {'type': 'Point', 'coordinates': [xCoord, yCoord]}
-        pts = ee.FeatureCollection(ee.Geometry(pts))
-
-        tsi_pt = collection.getRegion(pts, 30).getInfo()
-
-        ############################ here it gets tricky :)
-
-        tsi_pt[0].append("ID")
-
-        for i in range(1, len(tsi_pt)):
-            tsi_pt[i].append(id)
-
-        # Remove right away the masked values, and some remnants from the sceneID
-        val_reduced = []
-        for val in tsi_pt:
-            if not None in val:
-                sceneID = val[0]
-                sceneID = sceneID[sceneID.find("L"):]
-                val[0] = sceneID
-                # todo: add date info to list
-                #val.append(sceneID[12:])
-                val_reduced.append(val)
-
-        # Append to output then get next feature
-        tsi_list.append(val_reduced)
-        feat = layer.GetNextFeature()
-
-    # todo: add date info to list
-    for entry in tsi_list:
-        print(entry[2][0][12:])
-
-    # todo: aggregate based on dates
     steps = int(np.floor(abs(startDate - endDate).days / interval))
     stepsize = datetime.timedelta(days=interval)
     print('Aggregating Landsat at ' + str(interval) + ' day intervals using ' + aggregation)
@@ -87,6 +42,34 @@ def TSI(point_shape, startDate, endDate, interval, aggregation, write, out_path)
 
                 tsi = ee.Image([tsi, median])
 
+
+    print('Aggregation completed over ' + str(steps) + ' time steps.')
+    tsi_list = []
+
+    driver = ogr.GetDriverByName("ESRI Shapefile")
+    dataSource = driver.Open(point_shape, 0)
+    layer = dataSource.GetLayer()
+    feat = layer.GetNextFeature()
+
+    while feat:
+        id = feat.GetField("ID")
+        print("point id " + str(id))
+
+        xCoord = feat.GetGeometryRef().GetPoint()[0]
+        yCoord = feat.GetGeometryRef().GetPoint()[1]
+        pts = {'type': 'Point', 'coordinates': [xCoord, yCoord]}
+
+        tsi_pt = ee.ImageCollection(tsi).getRegion(pts, 30).getInfo()
+
+        ############################ here it gets tricky :)
+
+        tsi_pt[0].append("ID")
+        tsi_pt[1].append(id)
+
+        # Append to output then get next feature
+        tsi_list.append(tsi_pt)
+        feat = layer.GetNextFeature()
+
     if write == True:
 
         print("write output table")
@@ -103,17 +86,4 @@ def TSI(point_shape, startDate, endDate, interval, aggregation, write, out_path)
                 for row in element:
                     writer.writerow(row)
 
-    return tsi
-
-
-"""    it = 0
-    for feat in layer:
-        if it == 0:
-            xCoord = [feat.GetGeometryRef().GetPoint()[0]]
-            yCoord = [feat.GetGeometryRef().GetPoint()[1]]
-
-        if it > 1:
-            xCoord = np.vstack(xCoord, feat.GetGeometryRef().GetPoint()[0])
-            yCoord = np.vstack(yCoord, feat.GetGeometryRef().GetPoint()[1])
-        it += 1
-"""
+    return tsi_list
