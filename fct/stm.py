@@ -1,7 +1,12 @@
 import ee
+import csv
+import ogr
+import fct.lnd
 
-def STM(collection):
+# todo: allow multiple aggregation windows simultaneously
+def LND_STM(startDate, endDate):
 
+    collection = fct.lnd.LND_glob(startDate, endDate)
     coll = collection.select('blue', 'green', 'red', 'nir', 'swir1', 'swir2')
 
     median = coll.reduce(ee.Reducer.percentile([50]))\
@@ -22,6 +27,59 @@ def STM(collection):
     imean = coll.reduce(ee.Reducer.intervalMean(25, 75))\
         .rename('blue_imean', 'green_imean', 'red_imean', 'nir_imean', 'swir1_imean', 'swir2_imean')
 
-    STM_features = ee.Image([median, sd, p25, p75, iqr, imean])
+    return ee.Image([median, sd, p25, p75, iqr, imean])
 
-    return STM_features
+def STM_CSV(point_shape, startDate, endDate, write, out_path):
+
+    stm_image = ee.ImageCollection(fct.stm.LND_STM(startDate, endDate))
+
+    stm_list = []
+
+    driver = ogr.GetDriverByName("ESRI Shapefile")
+    dataSource = driver.Open(point_shape, 0)
+    layer = dataSource.GetLayer()
+    feat = layer.GetNextFeature()
+
+    while feat:
+        id = feat.GetField("ID")
+        print("point id " + str(id))
+
+        xCoord = feat.GetGeometryRef().GetPoint()[0]
+        yCoord = feat.GetGeometryRef().GetPoint()[1]
+        pts = {'type': 'Point', 'coordinates': [xCoord, yCoord]}
+
+        stm = ee.ImageCollection(stm_image).getRegion(pts, 30).getInfo()
+        stm[0].append("ID")
+
+        for i in range(1, len(stm)):
+            stm[i].append(id)
+
+        # Remove right away the masked values, and some remnants from the sceneID
+        val_reduced = []
+        for val in stm:
+            if not None in val:
+                sceneID = val[0]
+                p1 = sceneID.find("L")
+                sceneID = sceneID[p1:]
+                val[0] = sceneID
+                val_reduced.append(val)
+
+        # Append to output then get next feature
+        stm_list.append(val_reduced)
+        feat = layer.GetNextFeature()
+
+    if write == True:
+
+        print("write output table")
+        with open(out_path, "w") as theFile:
+            csv.register_dialect("custom", delimiter=",", skipinitialspace=True, lineterminator='\n')
+            writer = csv.writer(theFile, dialect="custom")
+            # Write the complete set of values (incl. the header) of the first entry
+            for element in stm_list[0]:
+                writer.writerow(element)
+            stm_list.pop(0)
+            # Now write the remaining entries, always pop the header
+            for element in stm_list:
+                element.pop(0)
+                for row in element:
+                    writer.writerow(row)
