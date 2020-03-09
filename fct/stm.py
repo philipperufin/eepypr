@@ -48,24 +48,12 @@ def STM_CSV(point_shape, startDate, endDate, write, out_path):
         yCoord = feat.GetGeometryRef().GetPoint()[1]
         pts = {'type': 'Point', 'coordinates': [xCoord, yCoord]}
 
-        stm = ee.ImageCollection(stm_image).getRegion(pts, 30).getInfo()
+        stm = stm_image.getRegion(pts, 30).getInfo()
         stm[0].append("ID")
-
-        for i in range(1, len(stm)):
-            stm[i].append(id)
-
-        # Remove right away the masked values, and some remnants from the sceneID
-        val_reduced = []
-        for val in stm:
-            if not None in val:
-                sceneID = val[0]
-                p1 = sceneID.find("L")
-                sceneID = sceneID[p1:]
-                val[0] = sceneID
-                val_reduced.append(val)
+        stm[1].append(id)
 
         # Append to output then get next feature
-        stm_list.append(val_reduced)
+        stm_list.append(stm)
         feat = layer.GetNextFeature()
 
     if write == True:
