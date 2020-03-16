@@ -1,5 +1,6 @@
 # ee.pypr, philippe rufin 2020
 # philippe.rufin@googlemail.com
+# inspired by baumi-berlin
 #######################################################
 # TSS function returns pixel-wise time series from
 #######################################################

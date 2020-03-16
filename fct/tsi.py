@@ -1,3 +1,7 @@
+# ee.pypr, philippe rufin 2020
+# philippe.rufin@googlemail.com
+# inspired by baumi-berlin
+
 import numpy as np
 import datetime
 import csv

@@ -1,3 +1,7 @@
+# ee.pypr, philippe rufin 2020
+# philippe.rufin@googlemail.com
+# inspired by baumi-berlin
+
 import ee
 import csv
 import ogr
@@ -71,3 +75,5 @@ def STM_CSV(point_shape, startDate, endDate, write, out_path):
                 element.pop(0)
                 for row in element:
                     writer.writerow(row)
+
+    return stm_list
