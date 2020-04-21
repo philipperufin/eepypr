@@ -9,12 +9,24 @@
 # mark beginning and end of collection period.
 #######################################################
 
-# todo: L8 harmonization
 
 import ee
 import datetime
 import fct.cld
 
+# function to harmonize l8 surface reflectance with coefficients from Roy et al. 2016
+def L8_harmonize(image):
+    b = ee.Image(0.0183).add(ee.Image(0.8850).multiply(image.select('blue'))).int16()
+    g = ee.Image(0.0123).add(ee.Image(0.9317).multiply(image.select('green'))).int16()
+    r = ee.Image(0.0123).add(ee.Image(0.9372).multiply(image.select('red'))).int16()
+    nir = ee.Image(0.0448).add(ee.Image(0.8339).multiply(image.select('nir'))).int16()
+    swir1 = ee.Image(0.0306).add(ee.Image(0.8639).multiply(image.select('swir1'))).int16()
+    swir2 = ee.Image(0.0116).add(ee.Image(0.9165).multiply(image.select('swir2'))).int16()
+
+    out = ee.Image(b.addBands(g).addBands(r).addBands(nir).addBands(swir1).addBands(swir2)
+                   .addBands(image.select(['pixel_qa']))
+                   .copyProperties(image, image.propertyNames()))
+    return out
 
 # todo: make roi optional, if null don´t filter
 def LND_roi(roi, startDate, endDate):
@@ -38,11 +50,12 @@ def LND_roi(roi, startDate, endDate):
         .select(['B1', 'B2', 'B3', 'B4', 'B5', 'B7', 'pixel_qa'],
                 ['blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'pixel_qa'])
 
-    l8 = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR')\
+    l8r = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR')\
         .filterDate(startDate, endDate)\
         .filterBounds(roi) \
         .select(['B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'pixel_qa'],
                 ['blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'pixel_qa'])
+    l8 = l8r.map(L8_harmonize)
 
     lnd = l8.merge(l7).merge(l5).merge(l4)
     lnd = lnd.map(fct.cld.maskQuality)
@@ -69,6 +82,7 @@ def LND_glob(startDate, endDate):
         .filterDate(startDate, endDate)\
         .select(['B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'pixel_qa'],
                 ['blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'pixel_qa'])
+    #l8 = l8.map(L8_harmonize)
 
     lnd = l8.merge(l7).merge(l5).merge(l4)
     lnd = lnd.map(fct.cld.maskQuality)

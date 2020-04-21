@@ -10,7 +10,7 @@ import ogr
 import fct.cld
 import fct.lnd
 
-def TSI(point_shape, startDate, endDate, interval, aggregation, write, out_path):
+def TSI(point_shape, id_string, startDate, endDate, interval, aggregation, write, out_path):
 
     coll = fct.lnd.LND_glob(startDate, endDate)\
         .select(['blue', 'green', 'red', 'nir', 'swir1', 'swir2'])
@@ -56,7 +56,7 @@ def TSI(point_shape, startDate, endDate, interval, aggregation, write, out_path)
     feat = layer.GetNextFeature()
 
     while feat:
-        id = feat.GetField("ID")
+        id = feat.GetField(id_string)
         print("point id " + str(id))
 
         xCoord = feat.GetGeometryRef().GetPoint()[0]

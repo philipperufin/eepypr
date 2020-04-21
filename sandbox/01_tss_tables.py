@@ -5,10 +5,13 @@ import fct.tss
 ee.Initialize()
 
 #### get tss from point shape
-point_shape = r'C:\Users\geo_phru\Desktop\olives\training_singlepart_4326_test.shp'
+point_shape = r'C:\Users\geo_phru\Desktop\LND_tss_SI\maize_potato\potato_training.shp'
 
-startDate = datetime.datetime(1984, 1, 1)
-endDate = datetime.datetime(2018, 12, 31)
-out_path = r'C:\Users\geo_phru\Desktop\olives\training_singlepart_4326_test_tss.csv'
+startDate = datetime.datetime(2017, 1, 1)
+endDate = datetime.datetime(2020, 3, 30)
 
-fct.tss.TSS(point_shape, startDate, endDate, True, out_path)
+out_path = r'C:\Users\geo_phru\Desktop\LND_tss_SI\maize_potato\potato_training_lnd_tss.csv'
+fct.tss.TSS_LND(point_shape, 'Name', startDate, endDate, True, out_path)
+
+out_path = r'C:\Users\geo_phru\Desktop\LND_tss_SI\maize_potato\potato_training_sen_tss.csv'
+fct.tss.TSS_SEN(point_shape, 'Name', startDate, endDate, True, out_path)

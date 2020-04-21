@@ -44,3 +44,16 @@ def maskQuality(image):
     # cirrus = getQABit(QA, 9, 9, 'cirrus')
     # Return an image masking out cloudy areas.
     return image.updateMask(cloud.eq(0)).updateMask(shadow.eq(0).updateMask(snow.eq(0)))
+
+
+def scl_mask(image):
+    # Select scene classification
+    scl = image.select('SCL')
+    sat = scl.neq(1)
+    shadow = scl.neq(3)
+    cloud_lo = scl.neq(7)
+    cloud_md = scl.neq(8)
+    cloud_hi = scl.neq(9)
+    cirrus = scl.neq(10)
+    snow = scl.neq(11)
+    return image.updateMask(sat.eq(1)).updateMask(shadow.eq(1).updateMask(cloud_lo.eq(1).updateMask(cloud_md.eq(1).updateMask(cloud_hi.eq(1).updateMask(cirrus.eq(1).updateMask(snow.eq(1)))))))
