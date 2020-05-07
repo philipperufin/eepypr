@@ -46,7 +46,7 @@ def maskQuality(image):
     return image.updateMask(cloud.eq(0)).updateMask(shadow.eq(0).updateMask(snow.eq(0)))
 
 
-def scl_mask(image):
+def maskS2scl(image):
     # Select scene classification
     scl = image.select('SCL')
     sat = scl.neq(1)
@@ -57,3 +57,24 @@ def scl_mask(image):
     cirrus = scl.neq(10)
     snow = scl.neq(11)
     return image.updateMask(sat.eq(1)).updateMask(shadow.eq(1).updateMask(cloud_lo.eq(1).updateMask(cloud_md.eq(1).updateMask(cloud_hi.eq(1).updateMask(cirrus.eq(1).updateMask(snow.eq(1)))))))
+
+#def maskS2qa(image):
+#  qa = image.select('QA60')
+
+#  // Bits 10 and 11 are clouds and cirrus, respectively.
+#  var cloudBitMask = 1 << 10;
+#  var cirrusBitMask = 1 << 11;
+
+#  // Both flags should be set to zero, indicating clear conditions.
+#  var mask = qa.bitwiseAnd(cloudBitMask).eq(0)
+#      .and(qa.bitwiseAnd(cirrusBitMask).eq(0));
+
+#  return image.updateMask(mask).divide(10000);
+#}
+
+# function to mask clouds based on cdi threshold
+def maskS2cdi(image):
+  cdi = ee.Algorithms.Sentinel2.CDI(image)
+  cdi_mask = cdi.lt(-0.5).rename("CDI")
+
+  return image.addBands(cdi).addBands(cdi_mask)
