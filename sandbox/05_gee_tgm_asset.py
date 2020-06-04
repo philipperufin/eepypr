@@ -21,7 +21,7 @@ points["class"].value_counts()
 # set first iteration
 first = True
 years = [1987, 1996, 2008, 2018]
-year = 2018
+
 # iterate over years in tile
 for year in years:
     print(int(year))
@@ -93,7 +93,7 @@ bands = ['s01_b_p50', 's01_g_p50', 's01_r_p50', 's01_n_p50', 's01_sw1_p50', 's01
 
 classifier = ee.Classifier.randomForest(250).train(tg_stm, 'class', bands)
 #print('RF accuracy: ', classifier.confusionMatrix().accuracy().getInfo())
-print('RF error matrix: ', classifier.confusionMatrix().getInfo())
+#print('RF error matrix: ', classifier.confusionMatrix().getInfo())
 
 ###########################################################
 ###########################################################
@@ -175,5 +175,4 @@ for year in range(1987, 2020):
     })
     task.start()
 
-
-task.status()
+#task.status()
