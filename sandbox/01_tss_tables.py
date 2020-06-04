@@ -41,3 +41,16 @@ endDate = datetime.datetime(2020, 4, 28)
 point_shape = r'C:\Users\geo_phru\Desktop\OSBie\baobabs\google_baobabs.shp'
 out_path = r'C:\Users\geo_phru\Desktop\OSBie\baobabs\google_baobabs_sen_tss.csv'
 fct.tss.TSS_SEN(point_shape, 'ID', startDate, endDate, True, out_path)
+
+
+
+#### NASA LCLUC
+startDate = datetime.datetime(2015, 1, 1)
+endDate = datetime.datetime(2020, 4, 30)
+
+point_shape = r'D:\Seafile\Meine Bibliothek\research\proposals\NASA_LCLUC_2020\shp\IND.shp'
+out_path = r'D:\Seafile\Meine Bibliothek\research\proposals\NASA_LCLUC_2020\shp\IND_tss.csv'
+fct.tss.TSS_LND(point_shape, 'id', startDate, endDate, True, out_path)
+
+out_path = r'D:\Seafile\Meine Bibliothek\research\proposals\NASA_LCLUC_2020\shp\IND_S2_tss.csv'
+fct.tss.TSS_SEN(point_shape, 'ID', startDate, endDate, True, out_path)
