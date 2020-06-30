@@ -106,7 +106,7 @@ coords = list(g['features'][0]['geometry']['coordinates'])
 roi = ee.Geometry.Polygon(coords)
 
 # stm features
-for year in range(1987, 2020):
+for year in range(2016, 2020):
 
     startDate = datetime.datetime(year, 4, 1)
     endDate = datetime.datetime(year, 7, 15)
@@ -141,9 +141,9 @@ for year in range(1987, 2020):
     stm_image = ee.Image([stm_s01, stm_s02, stm_ann])
 
     map = stm_image.classify(classifier).toInt8()
-    prb = stm_image.classify(classifier.setOutputMode('PROBABILITY')).toInt8()
+#    prb = stm_image.classify(classifier.setOutputMode('PROBABILITY')).toInt8()
 
-    # export to drive
+# export to drive
 #    task = ee.batch.Export.image.toDrive(**{
 #        'image': map,
 #        'folder': 'SUSADICA_maps',
@@ -165,14 +165,14 @@ for year in range(1987, 2020):
     })
     task.start()
 
-    task = ee.batch.Export.image.toAsset(**{
-        'image': prb,
-        'scale': 30,
-        'region': roi,
-        'description': 'susadica_prb_v02_' + str(year),
-        'assetId': 'users/philipperufin/susadica_prb_v02_' + str(year),
-        'maxPixels': 1e13
-    })
-    task.start()
+#    task = ee.batch.Export.image.toAsset(**{
+#        'image': prb,
+#        'scale': 30,
+#        'region': roi,
+#        'description': 'susadica_prb_v02_' + str(year),
+#        'assetId': 'users/philipperufin/susadica_prb_v02_' + str(year),
+#        'maxPixels': 1e13
+#    })
+#    task.start()
 
 #task.status()
