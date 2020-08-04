@@ -1,7 +1,7 @@
 import ee
 import fct.exp
 
-years = range(1987, 2020)
+years = range(1988, 2020)
 y = years[0]
 
 for y in years:
