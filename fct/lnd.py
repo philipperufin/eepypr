@@ -62,7 +62,7 @@ def LND_roi(roi, startDate, endDate):
 
     return lnd
 
-def LND_glob(startDate, endDate):
+def LND(startDate, endDate):
     l4 = ee.ImageCollection('LANDSAT/LT04/C01/T1_SR') \
         .filterDate(startDate, endDate) \
         .select(['B1', 'B2', 'B3', 'B4', 'B5', 'B7', 'pixel_qa'],
