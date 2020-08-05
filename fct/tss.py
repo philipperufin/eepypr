@@ -25,7 +25,6 @@ import fct.cld
 import fct.lnd
 import fct.sen
 
-
 def TSS(point_shape, id_string, startDate, endDate,
         write=True, out_path=None, driver='ESRI Shapefile', archive='LND', harmonize_l8=True):
 
@@ -92,7 +91,6 @@ def TSS(point_shape, id_string, startDate, endDate,
     if ((archive == 'LND') & (harmonize_l8 == True)):
         print('harmonizing OLI reflectances based on OLS regression coefficients in https://doi.org/10.1016/j.rse.2015.12.024')
         for p in range(0, len(tss_list)):
-            print(p)
             for r in range(0, len(tss_list[p])):
                 if 'LC08' in tss_list[p][r][0]:
                     tss_list[p][r][4] = np.int((10000 * 0.0183) + (0.8850 * tss_list[p][r][4]))
