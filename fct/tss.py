@@ -299,7 +299,7 @@ def TSS_SEN_TOA(point_shape, id_string, startDate, endDate, write, out_path):
                 for row in element:
                     writer.writerow(row)
 
-csv_path = r'P:\KenyaSandDams\Kitui West2 Points\tss\Kitui_West_2_TSS_LND.csv'
+
 def TSS_PR(csv_path, archive='LND', index=['NDVI', 'EVI', 'TCB', 'TCG', 'TCW', 'NDWI', 'NDMI'], out_path=None):
     ts = pd.read_csv(csv_path)
 
