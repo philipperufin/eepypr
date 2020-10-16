@@ -27,7 +27,7 @@ import fct.lnd
 import fct.sen
 import matplotlib.pyplot as plt
 
-def TSS(point_shape, id_string, startDate, endDate,
+def TSS(point_shape=None, id_string=None, startDate=None, endDate=None,
         write=True, out_path=None, driver='ESRI Shapefile', archive='LND', harmonize_l8=True):
 
     if driver == 'ESRI Shapefile':
@@ -121,6 +121,46 @@ def TSS(point_shape, id_string, startDate, endDate,
                 element.pop(0)
                 for row in element:
                     writer.writerow(row)
+
+
+def TSS_PR(csv_path, archive='LND', index=['NDVI', 'EVI', 'TCB', 'TCG', 'TCW', 'NDWI', 'NDMI'], out_path=None):
+    ts = pd.read_csv(csv_path)
+
+    if archive == 'LND':
+        ts['date'] = pd.to_datetime(ts['d'].str[12:20], format='%Y%m%d')
+
+    if archive == 'SEN':
+        ts['date'] = pd.to_datetime(ts['d'].str[0:8], format='%Y%m%d')
+
+    if 'NDVI' in index:
+        ts['NDVI'] = (ts['nir'] - ts['red']) / (ts['nir'] + ts['red'])
+
+    if 'EVI' in index:
+        ts['EVI'] = (2.5 * (((ts['nir']/10000) - ts['red']/10000)) / ((ts['nir']/10000) + 6 * (ts['red']/10000) - 7.5 * (ts['blue']/10000) + 1))
+
+    if 'NDWI' in index:
+        ts['NDWI'] = ((ts['swir1'] + ts['red']) + (ts['nir'] + ts['blue'])) / ((ts['swir1'] + ts['red']) - (ts['nir'] + ts['blue']))
+
+    if 'NDMI' in index:
+        ts['NDMI'] = (ts['nir'] - ts['swir1']) / (ts['nir'] + ts['swir1'])
+
+    if 'TCB' in index:
+        co = [0.2043,  0.4158,  0.5524, 0.5741,  0.3124,  0.2303]
+        ts['TCB'] = (ts['blue'] * co[0] + ts['green'] * co[1] +ts['red'] * co[2] + ts['nir'] * co[3] + ts['swir1'] * co[4] + ts['swir2'] * co[5]) / 10000
+
+    if 'TCG' in index:
+        co = [-0.1603, -0.2819, -0.4934, 0.7940, -0.0002, -0.1446]
+        ts['TCG'] = (ts['blue'] * co[0] + ts['green'] * co[1] + ts['red'] * co[2] + ts['nir'] * co[3] + ts['swir1'] * co[4] + ts['swir2'] * co[5]) / 10000
+
+    if 'TCW' in index:
+        co = [0.0315,  0.2021,  0.3102, 0.1594, -0.6806, -0.6109]
+        ts['TCW'] = (ts['blue'] * co[0] + ts['green'] * co[1] + ts['red'] * co[2] + ts['nir'] * co[3] + ts['swir1'] * co[4] + ts['swir2'] * co[5]) / 10000
+
+    print("write output table")
+    if out_path == None:
+        out_path = os.path.splitext(csv_path)[0] + '_PR.csv'
+
+    ts.to_csv(out_path, index=False)
 
 
 def TSS_LND(point_shape, id_string, startDate, endDate, write, out_path, driver='ESRI Shapefile'):
@@ -299,42 +339,3 @@ def TSS_SEN_TOA(point_shape, id_string, startDate, endDate, write, out_path):
                 for row in element:
                     writer.writerow(row)
 
-
-def TSS_PR(csv_path, archive='LND', index=['NDVI', 'EVI', 'TCB', 'TCG', 'TCW', 'NDWI', 'NDMI'], out_path=None):
-    ts = pd.read_csv(csv_path)
-
-    if archive == 'LND':
-        ts['date'] = pd.to_datetime(ts['d'].str[12:20], format='%Y%m%d')
-
-    if archive == 'SEN':
-        ts['date'] = pd.to_datetime(ts['d'].str[0:8], format='%Y%m%d')
-
-    if 'NDVI' in index:
-        ts['NDVI'] = (ts['nir'] - ts['red']) / (ts['nir'] + ts['red'])
-
-    if 'EVI' in index:
-        ts['EVI'] = (2.5 * (((ts['nir']/10000) - ts['red']/10000)) / ((ts['nir']/10000) + 6 * (ts['red']/10000) - 7.5 * (ts['blue']/10000) + 1))
-
-    if 'NDWI' in index:
-        ts['NDWI'] = ((ts['swir1'] + ts['red']) + (ts['nir'] + ts['blue'])) / ((ts['swir1'] + ts['red']) - (ts['nir'] + ts['blue']))
-
-    if 'NDMI' in index:
-        ts['NDMI'] = (ts['nir'] - ts['swir1']) / (ts['nir'] + ts['swir1'])
-
-    if 'TCB' in index:
-        co = [0.2043,  0.4158,  0.5524, 0.5741,  0.3124,  0.2303]
-        ts['TCB'] = (ts['blue'] * co[0] + ts['green'] * co[1] +ts['red'] * co[2] + ts['nir'] * co[3] + ts['swir1'] * co[4] + ts['swir2'] * co[5]) / 10000
-
-    if 'TCG' in index:
-        co = [-0.1603, -0.2819, -0.4934, 0.7940, -0.0002, -0.1446]
-        ts['TCG'] = (ts['blue'] * co[0] + ts['green'] * co[1] + ts['red'] * co[2] + ts['nir'] * co[3] + ts['swir1'] * co[4] + ts['swir2'] * co[5]) / 10000
-
-    if 'TCW' in index:
-        co = [0.0315,  0.2021,  0.3102, 0.1594, -0.6806, -0.6109]
-        ts['TCW'] = (ts['blue'] * co[0] + ts['green'] * co[1] + ts['red'] * co[2] + ts['nir'] * co[3] + ts['swir1'] * co[4] + ts['swir2'] * co[5]) / 10000
-
-    print("write output table")
-    if out_path == None:
-        out_path = os.path.splitext(csv_path)[0] + '_PR.csv'
-
-    ts.to_csv(out_path, index=False)

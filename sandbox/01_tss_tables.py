@@ -5,20 +5,36 @@ from multiprocessing import Pool
 
 ee.Initialize()
 
-#### KITUI WEST
-startDate = datetime.datetime(1984, 1, 1)
+startDate = datetime.datetime(2016, 1, 1)
 endDate = datetime.datetime(2020, 1, 1)
 id_string = 'ID'
-point_shape = r'P:\KenyaSandDams\Kitui West2 Points\Kitui_West2.shp'
-fct.tss.TSS(point_shape, 'ID', startDate, endDate, True)
 
-def f(arch):
-    fct.tss.TSS(point_shape, 'ID', startDate, endDate, True, archive=arch)
+pnt = [r'D:\Seafile\Meine Bibliothek\share\schwieder\SPLIT_0.gpkg',
+       r'D:\Seafile\Meine Bibliothek\share\schwieder\SPLIT_1.gpkg',
+       r'D:\Seafile\Meine Bibliothek\share\schwieder\SPLIT_2.gpkg',
+       r'D:\Seafile\Meine Bibliothek\share\schwieder\SPLIT_3.gpkg']
+
+def f(x):
+    fct.tss.TSS(point_shape=x, id_string=id_string, startDate=startDate, endDate=endDate, driver='GPKG')
 
 if __name__ == '__main__':
-    with Pool(5) as p:
-        print(p.map(f, ['LND', 'SEN']))
+       with Pool(5) as p:
+              print(p.map(f, pnt))
 
+# #### KITUI WEST
+# startDate = datetime.datetime(1984, 1, 1)
+# endDate = datetime.datetime(2020, 1, 1)
+# id_string = 'ID'
+# point_shape = r'P:\KenyaSandDams\Kitui West2 Points\Kitui_West2.shp'
+# fct.tss.TSS(point_shape, 'ID', startDate, endDate, True)
+#
+# def f(arch):
+#     fct.tss.TSS(point_shape, 'ID', startDate, endDate, True, archive=arch)
+#
+# if __name__ == '__main__':
+#     with Pool(5) as p:
+#         print(p.map(f, ['LND', 'SEN']))
+#
 #
 # #### LUCAS TREE CROPS
 # startDate = datetime.datetime(2016, 1, 1)
@@ -50,7 +66,6 @@ if __name__ == '__main__':
 # fct.tss.TSS_LND(point_shape, 'Name', startDate, endDate, True, out_path)
 #
 #
-#
 # #### BAOBAB OSBie
 # startDate = datetime.datetime(1984, 1, 1)
 # endDate = datetime.datetime(2020, 4, 28)
@@ -70,7 +85,6 @@ if __name__ == '__main__':
 # point_shape = r'C:\Users\geo_phru\Desktop\OSBie\baobabs\google_baobabs.shp'
 # out_path = r'C:\Users\geo_phru\Desktop\OSBie\baobabs\google_baobabs_sen_tss.csv'
 # fct.tss.TSS_SEN(point_shape, 'ID', startDate, endDate, True, out_path)
-#
 #
 #
 # #### NASA LCLUC
