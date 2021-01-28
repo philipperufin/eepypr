@@ -62,7 +62,7 @@ def LND_roi(roi, startDate, endDate):
 
     return lnd
 
-def LND(startDate, endDate):
+def LND(startDate, endDate, addVI=True):
     l4 = ee.ImageCollection('LANDSAT/LT04/C01/T1_SR') \
         .filterDate(startDate, endDate) \
         .select(['B1', 'B2', 'B3', 'B4', 'B5', 'B7', 'pixel_qa'],
@@ -86,5 +86,11 @@ def LND(startDate, endDate):
 
     lnd = l8.merge(l7).merge(l5).merge(l4)
     lnd = lnd.map(fct.cld.maskQuality)
+
+    if addVI == True:
+        lnd = lnd.map(lambda image: image.addBands(image.normalizedDifference(['nir', 'red'])\
+                                               .multiply(10000).toInt16().rename('ndvi'))) \
+                 .map(lambda image: image.addBands(image.expression("2.5 * ((b('nir') - b('red')) / (b('nir') + 6 * b('red') - 7.5 * b('blue') + 1e4))")\
+                                               .multiply(10000).toInt16().rename('evi')))
 
     return lnd

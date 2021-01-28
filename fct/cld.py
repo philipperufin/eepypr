@@ -73,8 +73,14 @@ def maskS2scl(image):
 #}
 
 # function to mask clouds based on cdi threshold
-def maskS2cdi(image):
-  cdi = ee.Algorithms.Sentinel2.CDI(image)
-  cdi_mask = cdi.lt(-0.5).rename("CDI")
+#def maskS2cdi(image):
+#  cdi = ee.Algorithms.Sentinel2.CDI(image)
+#  cdi_mask = cdi.lt(-0.5).rename("CDI")
+#  return image.addBands(cdi).addBands(cdi_mask)
 
-  return image.addBands(cdi).addBands(cdi_mask)
+# function to mask additional clouds based on cloud displacement index
+# threshold obtained from Qiu et al. 2019
+# doi: https://doi.org/10.1016/j.rse.2019.05.024
+def maskS2cdi(image):
+    cdi = ee.Algorithms.Sentinel2.CDI(image)
+    return image.updateMask(cdi.gt(-0.8)).addBands(cdi)
