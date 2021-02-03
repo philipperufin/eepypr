@@ -14,11 +14,10 @@ import ee
 import datetime
 import fct.cld
 
-
 def SEN(startDate, endDate):
 
-    bands = ee.List(['B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B8A', 'B11', 'B12', 'QA60', 'SCL'])
-    band_names = ee.List(['blue', 'green', 'red', 'rededge1', 'rededge2', 'rededge3', 'nir', 'broadnir', 'swir1', 'swir2', 'QA60', 'SCL'])
+    bands = ee.List(['B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B8A', 'B11', 'B12', 'QA60', 'SCL', 'cdi'])
+    band_names = ee.List(['blue', 'green', 'red', 'rededge1', 'rededge2', 'rededge3', 'nir', 'broadnir', 'swir1', 'swir2', 'QA60', 'SCL', 'CDI'])
 
     sen = ee.ImageCollection('COPERNICUS/S2_SR')\
                 .filter(ee.Filter.date(startDate, endDate))\
