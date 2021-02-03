@@ -28,61 +28,37 @@ def L8_harmonize(image):
                    .copyProperties(image, image.propertyNames()))
     return out
 
-# todo: make roi optional, if null don´t filter
-def LND_roi(roi, startDate, endDate):
-    # todo: make sure start and endDate are datetime objects
-
-    l4 = ee.ImageCollection('LANDSAT/LT04/C01/T1_SR')\
-        .filterDate(startDate, endDate)\
-        .filterBounds(roi) \
-        .select(['B1', 'B2', 'B3', 'B4', 'B5', 'B7', 'pixel_qa'],
-                ['blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'pixel_qa'])
-
-    l5 = ee.ImageCollection('LANDSAT/LT05/C01/T1_SR')\
-        .filterDate(startDate, endDate)\
-        .filterBounds(roi) \
-        .select(['B1', 'B2', 'B3', 'B4', 'B5', 'B7', 'pixel_qa'],
-                ['blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'pixel_qa'])
-
-    l7 = ee.ImageCollection('LANDSAT/LE07/C01/T1_SR')\
-        .filterDate(startDate, endDate)\
-        .filterBounds(roi) \
-        .select(['B1', 'B2', 'B3', 'B4', 'B5', 'B7', 'pixel_qa'],
-                ['blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'pixel_qa'])
-
-    l8r = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR')\
-        .filterDate(startDate, endDate)\
-        .filterBounds(roi) \
-        .select(['B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'pixel_qa'],
-                ['blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'pixel_qa'])
-    l8 = l8r.map(L8_harmonize)
-
-    lnd = l8.merge(l7).merge(l5).merge(l4)
-    lnd = lnd.map(fct.cld.maskQuality)
-
-    return lnd
-
-def LND(startDate, endDate, addVI=True):
+# todo: make sure start and endDate are datetime objects
+def LND(startDate, endDate, roi=None, addVI=True, cc=70, l8_harmonize=False):
     l4 = ee.ImageCollection('LANDSAT/LT04/C01/T1_SR') \
         .filterDate(startDate, endDate) \
+        .filterMetadata('IMAGE_QUALITY', 'equals', 9) \
+        .filterMetadata('CLOUD_COVER_LAND', 'less_than', cc) \
         .select(['B1', 'B2', 'B3', 'B4', 'B5', 'B7', 'pixel_qa'],
                 ['blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'pixel_qa'])
 
     l5 = ee.ImageCollection('LANDSAT/LT05/C01/T1_SR')\
-        .filterDate(startDate, endDate)\
+        .filterDate(startDate, endDate) \
+        .filterMetadata('IMAGE_QUALITY', 'equals', 9) \
+        .filterMetadata('CLOUD_COVER_LAND', 'less_than', cc) \
         .select(['B1', 'B2', 'B3', 'B4', 'B5', 'B7', 'pixel_qa'],
                 ['blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'pixel_qa'])
 
     l7 = ee.ImageCollection('LANDSAT/LE07/C01/T1_SR')\
-        .filterDate(startDate, endDate)\
+        .filterDate(startDate, endDate) \
+        .filterMetadata('IMAGE_QUALITY', 'equals', 9) \
+        .filterMetadata('CLOUD_COVER_LAND', 'less_than', cc) \
         .select(['B1', 'B2', 'B3', 'B4', 'B5', 'B7', 'pixel_qa'],
                 ['blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'pixel_qa'])
 
     l8 = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR')\
-        .filterDate(startDate, endDate)\
+        .filterDate(startDate, endDate) \
+        .filterMetadata('IMAGE_QUALITY', 'equals', 9) \
+        .filterMetadata('CLOUD_COVER_LAND', 'less_than', cc) \
         .select(['B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'pixel_qa'],
                 ['blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'pixel_qa'])
-    #l8 = l8.map(L8_harmonize)
+    if l8_harmonize:
+        l8 = l8.map(L8_harmonize)
 
     lnd = l8.merge(l7).merge(l5).merge(l4)
     lnd = lnd.map(fct.cld.maskQuality)
@@ -92,5 +68,7 @@ def LND(startDate, endDate, addVI=True):
                                                .multiply(10000).toInt16().rename('ndvi'))) \
                  .map(lambda image: image.addBands(image.expression("2.5 * ((b('nir') - b('red')) / (b('nir') + 6 * b('red') - 7.5 * b('blue') + 1e4))")\
                                                .multiply(10000).toInt16().rename('evi')))
+    if roi != None:
+        lnd = lnd.filterBounds(roi)
 
     return lnd

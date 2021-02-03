@@ -4,7 +4,6 @@
 # maskQuality function returns quality-masked image,
 # removes cloud, cloud shadow, snow & ice
 #######################################################
-
 import ee
 
 def getQABit(image, start, end, newName):
@@ -12,25 +11,6 @@ def getQABit(image, start, end, newName):
     for i in range(start, end + 1):
         pattern += 2 ** i
     return image.select([0], [newName]).bitwiseAnd(pattern).rightShift(start)
-
-# todo: add option to choose QAbits for water / snow & ice / cloud conf
-def maskClouds(image):
-
-    QA = image.select(['pixel_qa'])
-    #wt = getQABit(QA, 2, 2, 'Water').eq(0)
-    cs = getQABit(QA, 3, 3, 'CloudShadows').eq(0)
-    cd = getQABit(QA, 5, 5, 'Cloud').eq(0)
-    si = getQABit(QA, 4, 4, 'SnowIce').eq(0)
-    #mc = getQABit(QA, 7, 7, 'MedConfCloud').eq(0)
-    #cc = getQABit(QA, 9, 9, 'MedConfCirr').eq(0)
-
-    return image.updateMask(cs).updateMask(cd.updateMask(si))
-    #return image.updateMask(cs)\
-    #    .updateMask(cd)\
-    #    .updateMask(si)\
-    #    .updateMask(mc)\
-    #    .updateMask(cc)\
-    #    .rename('blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'pixel_qa')
 
 
 def maskQuality(image):
@@ -40,10 +20,14 @@ def maskQuality(image):
     shadow = getQABit(QA, 3, 3, 'cloud_shadow')
     cloud = getQABit(QA, 5, 5, 'cloud')
     snow = getQABit(QA, 4, 4, 'snow')
-    #  var cloud_confidence = getQABits(QA,6,7,  'cloud_confidence')
-    # cirrus = getQABit(QA, 9, 9, 'cirrus')
+    med_cld = getQABit(QA, 7, 7,  'med_cld_conf')
+    cirrus = getQABit(QA, 9, 9, 'cirrus')
     # Return an image masking out cloudy areas.
-    return image.updateMask(cloud.eq(0)).updateMask(shadow.eq(0).updateMask(snow.eq(0)))
+    return image.updateMask(cloud.eq(0))\
+                .updateMask(shadow.eq(0))\
+                .updateMask(snow.eq(0))\
+                .updateMask(med_cld.eq(0))\
+                .updateMask(cirrus.eq(0))
 
 
 def maskS2scl(image):
@@ -84,3 +68,24 @@ def maskS2scl(image):
 def maskS2cdi(image):
     cdi = ee.Algorithms.Sentinel2.CDI(image)
     return image.updateMask(cdi.gt(-0.8)).addBands(cdi)
+
+
+
+# todo: add option to choose QAbits for water / snow & ice / cloud conf
+def maskClouds(image):
+
+    QA = image.select(['pixel_qa'])
+    #wt = getQABit(QA, 2, 2, 'Water').eq(0)
+    cs = getQABit(QA, 3, 3, 'CloudShadows').eq(0)
+    cd = getQABit(QA, 5, 5, 'Cloud').eq(0)
+    si = getQABit(QA, 4, 4, 'SnowIce').eq(0)
+    #mc = getQABit(QA, 7, 7, 'MedConfCloud').eq(0)
+    #cc = getQABit(QA, 9, 9, 'MedConfCirr').eq(0)
+
+    return image.updateMask(cs).updateMask(cd.updateMask(si))
+    #return image.updateMask(cs)\
+    #    .updateMask(cd)\
+    #    .updateMask(si)\
+    #    .updateMask(mc)\
+    #    .updateMask(cc)\
+    #    .rename('blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'pixel_qa')
