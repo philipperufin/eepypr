@@ -12,27 +12,28 @@ import fct.sen
 def LND_STM(startDate, endDate):
 
     collection = fct.lnd.LND(startDate, endDate)
-    coll = collection.select('blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'ndvi')
+    coll = collection.select('blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'evi')
 
     median = coll.reduce(ee.Reducer.percentile([50]))\
-        .rename('blue_med', 'green_med', 'red_med', 'nir_med', 'swir1_med', 'swir2_med', 'ndvi_med')
+        .rename('blue_med', 'green_med', 'red_med', 'nir_med', 'swir1_med', 'swir2_med', 'evi_med')
 
     sd = coll.reduce(ee.Reducer.stdDev())\
-        .rename('blue_sd', 'green_sd', 'red_sd', 'nir_sd', 'swir1_sd', 'swir2_sd', 'ndvi_sd')
+        .rename('blue_sd', 'green_sd', 'red_sd', 'nir_sd', 'swir1_sd', 'swir2_sd', 'evi_sd')
 
     p25 = coll.reduce(ee.Reducer.percentile([25]))\
-        .rename('blue_p25', 'green_p25', 'red_p25', 'nir_p25', 'swir1_p25', 'swir2_p25', 'ndvi_p25')
+        .rename('blue_p25', 'green_p25', 'red_p25', 'nir_p25', 'swir1_p25', 'swir2_p25', 'evi_p25')
 
     p75 = coll.reduce(ee.Reducer.percentile([75]))\
-        .rename('blue_p75', 'green_p75', 'red_p75', 'nir_p75', 'swir1_p75', 'swir2_p75', 'ndvi_p75')
+        .rename('blue_p75', 'green_p75', 'red_p75', 'nir_p75', 'swir1_p75', 'swir2_p75', 'evi_p75')
 
     iqr = p75.subtract(p25)\
-        .rename('blue_iqr', 'green_iqr', 'red_iqr', 'nir_iqr', 'swir1_iqr', 'swir2_iqr', 'ndvi_iqr')
+        .rename('blue_iqr', 'green_iqr', 'red_iqr', 'nir_iqr', 'swir1_iqr', 'swir2_iqr', 'evi_iqr')
 
-    imean = coll.reduce(ee.Reducer.intervalMean(25, 75))\
-        .rename('blue_imean', 'green_imean', 'red_imean', 'nir_imean', 'swir1_imean', 'swir2_imean', 'ndvi_imean')
+    #imean = coll.reduce(ee.Reducer.intervalMean(25, 75))\
+    #    .rename('blue_imean', 'green_imean', 'red_imean', 'nir_imean', 'swir1_imean', 'swir2_imean', 'evi_imean')
 
-    return ee.Image([median, sd, p25, p75, iqr, imean])
+    #return ee.Image([median, sd, p25, p75, iqr, imean])
+    return ee.Image([median, sd, p25, p75, iqr])
 
 # todo: allow multiple aggregation windows simultaneously
 def SEN_STM(startDate, endDate):
@@ -105,3 +106,53 @@ def STM_CSV(point_shape, startDate, endDate, write, out_path):
                     writer.writerow(row)
 
     return stm_list
+
+
+##################################
+# function to get pixel-wise clear obs count
+
+
+def LND_NUM(startDate, endDate, roi=None):
+
+    # calculate cfmask from pixel_qa
+    def cfmask(image):
+        pixel_qa = image.select('pixel_qa')
+        cfmask_layer = ee.Image(255)\
+        .where(pixel_qa.bitwiseAnd(2).neq(0), 0)\
+        .where(pixel_qa.bitwiseAnd(4).neq(0), 1)\
+        .where(pixel_qa.bitwiseAnd(8).neq(0), 2)\
+        .where(pixel_qa.bitwiseAnd(16).neq(0), 3)\
+        .where(pixel_qa.bitwiseAnd(32).neq(0), 4)\
+        .updateMask(pixel_qa.bitwiseAnd(1).eq(0))
+
+        return image.addBands(cfmask_layer.rename('cfmask'))
+
+    lnd = fct.lnd.LND(startDate, endDate).map(cfmask)
+
+    # calculate clear observation counts
+    def dailymosaic(delta):
+        return lnd.filterDate(ee.Date(startDate.strftime("%Y-%m-%d"))\
+                              .advance(delta, 'day'), ee.Date(startDate.strftime("%Y-%m-%d"))\
+                              .advance(ee.Number(delta)\
+                              .add(1), 'day'))\
+                              .mosaic()\
+                              .toInt16()
+
+    # reclass
+    def lte_1(image):
+        return image.lte(1)
+
+    lnd_cnt = ee.ImageCollection(ee.List.sequence(0, ee.Date(endDate.strftime("%Y-%m-%d"))
+                                                  .difference(ee.Date(startDate.strftime("%Y-%m-%d")), 'day')\
+                                                  .subtract(1))\
+                                                  .map(dailymosaic))
+
+
+    if roi != None:
+        lnd_cnt = lnd_cnt.filterBounds(roi)
+
+    return lnd_cnt.select(['cfmask'])\
+                  .map(lte_1)\
+                  .sum()\
+                  .rename('cso')\
+                  .toInt16()

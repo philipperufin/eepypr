@@ -5,21 +5,29 @@ from multiprocessing import Pool
 
 ee.Initialize()
 
-startDate = datetime.datetime(2016, 1, 1)
+#startDate = datetime.datetime(1985, 1, 1)
+#endDate = datetime.datetime(2020, 1, 1)
+#id_string = 'ID'
+
+#pnt = [r'D:\Seafile\Meine Bibliothek\share\schwieder\SPLIT_0.gpkg',
+#       r'D:\Seafile\Meine Bibliothek\share\schwieder\SPLIT_1.gpkg',
+#       r'D:\Seafile\Meine Bibliothek\share\schwieder\SPLIT_2.gpkg',
+#       r'D:\Seafile\Meine Bibliothek\share\schwieder\SPLIT_3.gpkg']
+
+#def f(x):
+#    fct.tss.TSS(point_shape=x, id_string=id_string, startDate=startDate, endDate=endDate, driver='GPKG')
+
+#if __name__ == '__main__':
+#       with Pool(4) as p:
+#              print(p.map(f, pnt))
+
+startDate = datetime.datetime(1985, 1, 1)
 endDate = datetime.datetime(2020, 1, 1)
-id_string = 'ID'
+id_string = 'id'
+pnt = r'C:\Users\geo_phru\Desktop\MOZ\mozamb.shp'
+fct.tss.TSS(point_shape=pnt, id_string=id_string, startDate=startDate, endDate=endDate)
 
-pnt = [r'D:\Seafile\Meine Bibliothek\share\schwieder\SPLIT_0.gpkg',
-       r'D:\Seafile\Meine Bibliothek\share\schwieder\SPLIT_1.gpkg',
-       r'D:\Seafile\Meine Bibliothek\share\schwieder\SPLIT_2.gpkg',
-       r'D:\Seafile\Meine Bibliothek\share\schwieder\SPLIT_3.gpkg']
-
-def f(x):
-    fct.tss.TSS(point_shape=x, id_string=id_string, startDate=startDate, endDate=endDate, driver='GPKG')
-
-if __name__ == '__main__':
-       with Pool(5) as p:
-              print(p.map(f, pnt))
+fct.tss.TSS_PR(r'C:\Users\geo_phru\Desktop\MOZ\mozamb_TSS_LND_1985-2020.csv', index='NDVI')
 
 # #### KITUI WEST
 # startDate = datetime.datetime(1984, 1, 1)
