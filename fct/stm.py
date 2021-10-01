@@ -7,6 +7,7 @@ import csv
 import ogr
 import fct.lnd
 import fct.sen
+import fct.psm
 
 # todo: allow multiple aggregation windows simultaneously
 def LND_STM(startDate, endDate):
@@ -61,6 +62,37 @@ def SEN_STM(startDate, endDate):
 
     return ee.Image([median, sd, p25, p75, iqr, imean])
 
+
+# todo: allow multiple aggregation windows simultaneously
+def PSM_STM(startDate, endDate, register=False, roi_path=False):
+    if register==False:
+        collection = fct.psm.PSM(startDate, endDate)
+
+    if register==True:
+        collection = fct.psm.PSM_COREG(startDate, endDate, roi_path, property='system:index', reference_id='planet_medres_normalized_analytic_2021-05_mosaic', band='nir', maxOffset=50)
+
+    coll = collection.select('blue', 'green', 'red', 'nir', 'ndvi')
+
+    median = coll.reduce(ee.Reducer.percentile([50]))\
+        .rename('blue_med', 'green_med', 'red_med', 'nir_med', 'ndvi_med')
+
+    sd = coll.reduce(ee.Reducer.stdDev())\
+        .rename('blue_sd', 'green_sd', 'red_sd', 'nir_sd', 'ndvi_sd')
+
+    p25 = coll.reduce(ee.Reducer.percentile([25]))\
+        .rename('blue_p25', 'green_p25', 'red_p25', 'nir_p25', 'ndvi_p25')
+
+    p75 = coll.reduce(ee.Reducer.percentile([75]))\
+        .rename('blue_p75', 'green_p75', 'red_p75', 'nir_p75', 'ndvi_p75')
+
+    iqr = p75.subtract(p25)\
+        .rename('blue_iqr', 'green_iqr', 'red_iqr', 'nir_iqr', 'ndvi_iqr')
+
+    #imean = coll.reduce(ee.Reducer.intervalMean(25, 75))\
+    #    .rename('blue_imean', 'green_imean', 'red_imean', 'nir_imean', 'swir1_imean', 'swir2_imean', 'evi_imean')
+
+    #return ee.Image([median, sd, p25, p75, iqr, imean])
+    return ee.Image([median, sd, p25, p75, iqr])
 
 def STM_CSV(point_shape, startDate, endDate, write, out_path):
 

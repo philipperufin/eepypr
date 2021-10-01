@@ -32,35 +32,35 @@ for year in years:
     startDate = datetime.datetime(int(year), 4, 1)
     endDate = datetime.datetime(int(year), 7, 31)
     stm_s01 = fct.stm.LND_STM(startDate, endDate) \
-        .rename('s01_b_p50', 's01_g_p50', 's01_r_p50', 's01_n_p50', 's01_sw1_p50', 's01_sw2_p50', 's01_evi_p50',
-                's01_b_std', 's01_g_std', 's01_r_std', 's01_n_std', 's01_sw1_std', 's01_sw2_std', 's01_evi_std',
-                's01_b_p25', 's01_g_p25', 's01_r_p25', 's01_n_p25', 's01_sw1_p25', 's01_sw2_p25', 's01_evi_p25',
-                's01_b_p75', 's01_g_p75', 's01_r_p75', 's01_n_p75', 's01_sw1_p75', 's01_sw2_p75', 's01_evi_p75',
-                's01_b_iqr', 's01_g_iqr', 's01_r_iqr', 's01_n_iqr', 's01_sw1_iqr', 's01_sw2_iqr', 's01_evi_iqr')
+        .rename('s01_b_p50', 's01_g_p50', 's01_r_p50', 's01_n_p50', 's01_sw1_p50', 's01_sw2_p50', 's01_ndvi_p50',
+                's01_b_std', 's01_g_std', 's01_r_std', 's01_n_std', 's01_sw1_std', 's01_sw2_std', 's01_ndvi_std',
+                's01_b_p25', 's01_g_p25', 's01_r_p25', 's01_n_p25', 's01_sw1_p25', 's01_sw2_p25', 's01_ndvi_p25',
+                's01_b_p75', 's01_g_p75', 's01_r_p75', 's01_n_p75', 's01_sw1_p75', 's01_sw2_p75', 's01_ndvi_p75',
+                's01_b_iqr', 's01_g_iqr', 's01_r_iqr', 's01_n_iqr', 's01_sw1_iqr', 's01_sw2_iqr', 's01_ndvi_iqr')
 
     startDate = datetime.datetime(int(year), 8, 1)
     endDate = datetime.datetime(int(year), 10, 31)
     stm_s02 = fct.stm.LND_STM(startDate, endDate) \
-        .rename('s02_b_p50', 's02_g_p50', 's02_r_p50', 's02_n_p50', 's02_sw1_p50', 's02_sw2_p50', 's02_evi_p50',
-                's02_b_std', 's02_g_std', 's02_r_std', 's02_n_std', 's02_sw1_std', 's02_sw2_std', 's02_evi_std',
-                's02_b_p25', 's02_g_p25', 's02_r_p25', 's02_n_p25', 's02_sw1_p25', 's02_sw2_p25', 's02_evi_p25',
-                's02_b_p75', 's02_g_p75', 's02_r_p75', 's02_n_p75', 's02_sw1_p75', 's02_sw2_p75', 's02_evi_p75',
-                's02_b_iqr', 's02_g_iqr', 's02_r_iqr', 's02_n_iqr', 's02_sw1_iqr', 's02_sw2_iqr', 's02_evi_iqr')
+        .rename('s02_b_p50', 's02_g_p50', 's02_r_p50', 's02_n_p50', 's02_sw1_p50', 's02_sw2_p50', 's02_ndvi_p50',
+                's02_b_std', 's02_g_std', 's02_r_std', 's02_n_std', 's02_sw1_std', 's02_sw2_std', 's02_ndvi_std',
+                's02_b_p25', 's02_g_p25', 's02_r_p25', 's02_n_p25', 's02_sw1_p25', 's02_sw2_p25', 's02_ndvi_p25',
+                's02_b_p75', 's02_g_p75', 's02_r_p75', 's02_n_p75', 's02_sw1_p75', 's02_sw2_p75', 's02_ndvi_p75',
+                's02_b_iqr', 's02_g_iqr', 's02_r_iqr', 's02_n_iqr', 's02_sw1_iqr', 's02_sw2_iqr', 's02_ndvi_iqr')
 
     startDate = datetime.datetime(int(year), 4, 1)
     endDate = datetime.datetime(int(year), 10, 31)
     stm_s03 = fct.stm.LND_STM(startDate, endDate) \
-        .rename('s03_b_p50', 's03_g_p50', 's03_r_p50', 's03_n_p50', 's03_sw1_p50', 's03_sw2_p50', 's03_evi_p50',
-                's03_b_std', 's03_g_std', 's03_r_std', 's03_n_std', 's03_sw1_std', 's03_sw2_std', 's03_evi_std',
-                's03_b_p25', 's03_g_p25', 's03_r_p25', 's03_n_p25', 's03_sw1_p25', 's03_sw2_p25', 's03_evi_p25',
-                's03_b_p75', 's03_g_p75', 's03_r_p75', 's03_n_p75', 's03_sw1_p75', 's03_sw2_p75', 's03_evi_p75',
-                's03_b_iqr', 's03_g_iqr', 's03_r_iqr', 's03_n_iqr', 's03_sw1_iqr', 's03_sw2_iqr', 's03_evi_iqr')
+        .rename('s03_b_p50', 's03_g_p50', 's03_r_p50', 's03_n_p50', 's03_sw1_p50', 's03_sw2_p50', 's03_ndvi_p50',
+                's03_b_std', 's03_g_std', 's03_r_std', 's03_n_std', 's03_sw1_std', 's03_sw2_std', 's03_ndvi_std',
+                's03_b_p25', 's03_g_p25', 's03_r_p25', 's03_n_p25', 's03_sw1_p25', 's03_sw2_p25', 's03_ndvi_p25',
+                's03_b_p75', 's03_g_p75', 's03_r_p75', 's03_n_p75', 's03_sw1_p75', 's03_sw2_p75', 's03_ndvi_p75',
+                's03_b_iqr', 's03_g_iqr', 's03_r_iqr', 's03_n_iqr', 's03_sw1_iqr', 's03_sw2_iqr', 's03_ndvi_iqr')
 
     # create multi-season image and cast to integer!
     stm_image = ee.Image([stm_s01, stm_s02, stm_s03]).toInt16()
 
     # add textures and texture ndis
-    txt_bds = ['s02_evi_p25', 's02_evi_p75', 's03_evi_p25', 's03_evi_p75']
+    txt_bds = ['s02_ndvi_p25', 's02_ndvi_p75', 's03_ndvi_p25', 's03_ndvi_p75']
     txt_rds = [150, 300, 900]
     for bd in txt_bds:
         for rd in txt_rds:

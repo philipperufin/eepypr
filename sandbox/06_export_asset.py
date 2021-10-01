@@ -71,4 +71,9 @@ scale = 30
 fct.exp.exportDrive(srtm_image.toInt16(), description, folder, scale)
 
 
-collection.toBands()
+# export psm stm mecurubi
+image = ee.Image('users/philipperufin/fsda_lichinga_psm_coreg_stm_2021')
+description = 'fsda_lichinga_psm_coreg_stm_2021'
+folder = 'NICFI_LC'
+scale = 4.77
+fct.exp.exportDrive(image, description, folder, scale)
