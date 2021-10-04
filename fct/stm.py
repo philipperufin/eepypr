@@ -64,12 +64,12 @@ def SEN_STM(startDate, endDate):
 
 
 # todo: allow multiple aggregation windows simultaneously
-def PSM_STM(startDate, endDate, register=False, roi_path=False):
+def PSM_STM(startDate, endDate, roi_path, register=False):
     if register==False:
         collection = fct.psm.PSM(startDate, endDate)
 
     if register==True:
-        collection = fct.psm.PSM_COREG(startDate, endDate, roi_path, property='system:index', reference_id='planet_medres_normalized_analytic_2021-05_mosaic', band='nir', maxOffset=50)
+        collection = fct.psm.PSM_COREG(startDate, endDate, roi_path, property='system:index', reference_id='planet_medres_normalized_analytic_2021-05_mosaic')
 
     coll = collection.select('blue', 'green', 'red', 'nir', 'ndvi')
 

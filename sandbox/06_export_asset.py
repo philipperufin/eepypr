@@ -72,8 +72,16 @@ fct.exp.exportDrive(srtm_image.toInt16(), description, folder, scale)
 
 
 # export psm stm mecurubi
-image = ee.Image('users/philipperufin/fsda_lichinga_psm_coreg_stm_2021')
-description = 'fsda_lichinga_psm_coreg_stm_2021'
+image = ee.Image('users/philipperufin/fsda_lichinga_psm_coreg_100m_ssnl_annl_stm_2021')
+description = 'fsda_lichinga_psm_coreg_100m_ssnl_annl_stm_2021'
+folder = 'NICFI_LC'
+scale = 4.77
+fct.exp.exportDrive(image, description, folder, scale)
+
+
+# export lc map lichinga
+image = ee.Image('users/philipperufin/nicfi_lc_lichinga_coreg_100m_ssnl_annl_stm_2021')
+description = 'nicfi_lc_lichinga'
 folder = 'NICFI_LC'
 scale = 4.77
 fct.exp.exportDrive(image, description, folder, scale)

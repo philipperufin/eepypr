@@ -33,7 +33,7 @@ def PSM(startDate, endDate):
 
 def PSM_COREG(startDate, endDate, roi_path,\
               property='system:index', reference_id='planet_medres_normalized_analytic_2021-05_mosaic',\
-              band='nir', maxOffset=50):
+              band='nir', maxOffset=100):
 
     # define roi
     roi_shp = gpd.read_file(roi_path)
@@ -44,22 +44,23 @@ def PSM_COREG(startDate, endDate, roi_path,\
     bands = ee.List(['B', 'G', 'R', 'N'])
     band_names = ee.List(['blue', 'green', 'red', 'nir'])
 
+    # fetch collection and rename bands
     psm = ee.ImageCollection("projects/planet-nicfi/assets/basemaps/africa")\
-                .filter(ee.Filter.date(startDate, endDate))\
                 .select(bands, band_names)
 
     psm = psm.map(lambda image: image.addBands(image.normalizedDifference(['nir', 'red'])\
                                                .multiply(10000).toInt16().rename('ndvi')))
 
-
-    ids = psm.aggregate_array(property).getInfo()
-
     # define reference image
     as_ref = ee.Image(psm.filterMetadata(property, 'equals', reference_id).first()).clip(roi)
 
-    # register each image in collection
+    # filter date range
+    psm = psm.filter(ee.Filter.date(startDate, endDate))
 
+    # register each image in collection
     i = 1
+    ids = psm.aggregate_array(property).getInfo()
+
     for id in ids:
         print(id)
 
