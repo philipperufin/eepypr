@@ -21,7 +21,7 @@ ee.Initialize()
 # years from list
 
 # roi 2 ee geometry
-roi_shp = gpd.read_file(r'D:\PRJ_TMP\FSDA\data\NICFI_LC\mecuburi.shp')
+roi_shp = gpd.read_file(r'D:\PRJ_TMP\FSDA\data\vector\adm\north_moz_adm0.shp')
 g = json.loads(roi_shp.to_json())
 coords = list(g['features'][0]['geometry']['coordinates'])
 roi = ee.Geometry.Polygon(coords)
@@ -57,10 +57,11 @@ stm_s03 = fct.stm.PSM_STM(startDate, endDate) \
 
 # create multi-season image and cast to integer!
 stm_image = ee.Image([stm_s01, stm_s02, stm_s03]).toInt16()
+stm_image = ee.Image([stm_s03]).toInt16()
 
 # add textures and texture ndis
 txt_bds = ['s03_ndvi_p25', 's03_ndvi_p75']
-txt_rds = [20, 40, 80]
+txt_rds = [20, 50, 100]
 for bd in txt_bds:
     for rd in txt_rds:
         stm_image = fct.txt.TXT(stm_image, bd, rd)
@@ -73,7 +74,7 @@ task = ee.batch.Export.image.toAsset(**{
     'image': stm_image,
     'scale': 4.77,
     'region': roi,
-    'description': 'fsda_mecuburi_psm_stm_2021',
+    'description': 'fsda_north_moz_psm_stm_2021',
     'assetId': 'users/philipperufin/fsda_mecuburi_psm_stm_2021',
     'maxPixels': 1e13
 })

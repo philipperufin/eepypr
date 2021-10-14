@@ -71,17 +71,26 @@ scale = 30
 fct.exp.exportDrive(srtm_image.toInt16(), description, folder, scale)
 
 
-# export psm stm mecurubi
-image = ee.Image('users/philipperufin/fsda_lichinga_psm_coreg_100m_ssnl_annl_stm_2021')
-description = 'fsda_lichinga_psm_coreg_100m_ssnl_annl_stm_2021'
+
+# mask to roi
+roi_path = r'D:\PRJ_TMP\FSDA\data\vector\adm\niassa_adm1.shp'
+roi_shp = gpd.read_file(roi_path)
+g = json.loads(roi_shp.to_json())
+coords = list(g['features'][0]['geometry']['coordinates'])
+roi = ee.Geometry.Polygon(coords)
+
+# export psm stm
+image = ee.Image('users/philipperufin/fsda/fsda_niassa_psm_coreg_stm_202012-202103').select('s01_ndvi_p50')
+image = maskInside(image, roi)
+description = 'export_fsda_niassa_psm_coreg_stm_202012-202103'
 folder = 'NICFI_LC'
 scale = 4.77
 fct.exp.exportDrive(image, description, folder, scale)
 
 
 # export lc map lichinga
-image = ee.Image('users/philipperufin/nicfi_lc_lichinga_coreg_100m_ssnl_annl_stm_2021')
-description = 'nicfi_lc_lichinga'
+image = ee.Image('users/philipperufin/fsda_gurue_psm_coreg_100m_ssnl_annl_sstm_2021')
+description = 'fsda_gurue_psm_coreg_100m_ssnl_annl_sstm_2021'
 folder = 'NICFI_LC'
 scale = 4.77
 fct.exp.exportDrive(image, description, folder, scale)
