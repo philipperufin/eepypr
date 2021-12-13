@@ -8,7 +8,40 @@ def maskInside(image, geometry):
 
 
 ee.Initialize()
+##########################################################
+# fsda
+# mask to roi
+roi_path = r'D:\PRJ_TMP\FSDA\data\vector\adm\niassa_adm1.shp'
+roi_shp = gpd.read_file(roi_path)
+g = json.loads(roi_shp.to_json())
+coords = list(g['features'][0]['geometry']['coordinates'])
+roi = ee.Geometry.Polygon(coords)
 
+# export psm stm
+run = range(28,31)
+for i in run:
+    image = ee.Image('users/philipperufin/fsda_tiles/fsda_tile_' + f'{int(i):03}' + '_psm_coreg_3season_stm')
+    #image = maskInside(image, roi)
+    description = 'fsda_tile_' + f'{int(i):03}' + '_psm_coreg_3season_stm'
+    folder = 'NICFI_LC/tiles'
+    scale = 4.77
+    fct.exp.exportDrive(image, description, folder, scale)
+
+#done_tiles = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 27, 35, 61]
+#if False:
+#    done = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 27, 35, 61]
+#    for i in done:
+#        ee.data.deleteAsset('users/philipperufin/fsda_tiles/fsda_tile_' + f'{int(i):03}' + '_psm_coreg_3season_stm')
+
+image = ee.Image('users/philipperufin/nicfi_lc_tile_03deg_033_psm_coreg_3season_stm')
+description = 'nicfi_lc_tile_03deg_033_psm_coreg_3season_stm'
+folder = 'NICFI_LC'
+scale = 4.77
+fct.exp.exportDrive(image, description, folder, scale)
+
+
+
+##########################################################
 ### maps
 years = range(1987, 2020)
 for y in years:
@@ -55,7 +88,7 @@ fct.exp.exportDrive(srtm_image.toByte(), description, folder, scale)
 
 
 
-# export srtm for susadica
+### export srtm for susadica
 srtm_image = ee.Image("NASA/NASADEM_HGT/001").select('elevation')
 
 # mask to roi
@@ -71,26 +104,19 @@ scale = 30
 fct.exp.exportDrive(srtm_image.toInt16(), description, folder, scale)
 
 
+### export slope for susadica
+srtm_image = ee.Image("NASA/NASADEM_HGT/001").select('elevation')
+slope_image = ee.Terrain.slope(srtm_image).multiply(100).toInt16()
 
 # mask to roi
-roi_path = r'D:\PRJ_TMP\FSDA\data\vector\adm\niassa_adm1.shp'
-roi_shp = gpd.read_file(roi_path)
+roi_shp = gpd.read_file(r'P:\SUSADICA\vector\roi\roi_prv_v03.shp')
 g = json.loads(roi_shp.to_json())
 coords = list(g['features'][0]['geometry']['coordinates'])
 roi = ee.Geometry.Polygon(coords)
+slope_image = maskInside(slope_image, roi)
 
-# export psm stm
-image = ee.Image('users/philipperufin/fsda/fsda_niassa_psm_coreg_stm_202012-202103').select('s01_ndvi_p50')
-image = maskInside(image, roi)
-description = 'export_fsda_niassa_psm_coreg_stm_202012-202103'
-folder = 'NICFI_LC'
-scale = 4.77
-fct.exp.exportDrive(image, description, folder, scale)
+description = 'SUSADICA_SLOPES'
+folder = 'SUSADICA'
+scale = 30
+fct.exp.exportDrive(slope_image, description, folder, scale)
 
-
-# export lc map lichinga
-image = ee.Image('users/philipperufin/fsda_gurue_psm_coreg_100m_ssnl_annl_sstm_2021')
-description = 'fsda_gurue_psm_coreg_100m_ssnl_annl_sstm_2021'
-folder = 'NICFI_LC'
-scale = 4.77
-fct.exp.exportDrive(image, description, folder, scale)

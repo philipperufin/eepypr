@@ -14,21 +14,32 @@ import ee
 import datetime
 import fct.cld
 
-def SEN(startDate, endDate):
+def SEN(startDate, endDate, cdi=True):
+    if cdi==False:
+        bands = ee.List(['B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B8A', 'B11', 'B12', 'QA60', 'SCL'])
+        band_names = ee.List(['blue', 'green', 'red', 'rededge1', 'rededge2', 'rededge3', 'nir', 'broadnir', 'swir1', 'swir2', 'QA60', 'SCL'])
 
-    bands = ee.List(['B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B8A', 'B11', 'B12', 'QA60', 'SCL', 'cdi'])
-    band_names = ee.List(['blue', 'green', 'red', 'rededge1', 'rededge2', 'rededge3', 'nir', 'broadnir', 'swir1', 'swir2', 'QA60', 'SCL', 'CDI'])
+        sen = ee.ImageCollection('COPERNICUS/S2_SR')\
+                    .filter(ee.Filter.date(startDate, endDate))\
+                    .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 50))\
+                    .map(fct.cld.maskS2scl)\
+                    .select(bands, band_names)
 
-    sen = ee.ImageCollection('COPERNICUS/S2_SR')\
-                .filter(ee.Filter.date(startDate, endDate))\
-                .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 50))\
-                .map(fct.cld.maskS2scl) \
-                .map(fct.cld.maskS2cdi) \
-                .select(bands, band_names)
+    if cdi==True:
+        bands = ee.List(['B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B8A', 'B11', 'B12', 'QA60', 'SCL', 'cdi'])
+        band_names = ee.List(
+            ['blue', 'green', 'red', 'rededge1', 'rededge2', 'rededge3', 'nir', 'broadnir', 'swir1', 'swir2', 'QA60',
+             'SCL', 'CDI'])
 
-    sen = sen.map(lambda image: image.addBands(image.normalizedDifference(['broadnir', 'red'])\
+        sen = ee.ImageCollection('COPERNICUS/S2_SR') \
+            .filter(ee.Filter.date(startDate, endDate)) \
+            .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 50)) \
+            .map(fct.cld.maskS2scl) \
+            .map(fct.cld.maskS2cdi) \
+            .select(bands, band_names)
+
+    sen = sen.map(lambda image: image.addBands(image.normalizedDifference(['broadnir', 'red']) \
                                                .multiply(10000).toInt16().rename('ndvi')))
-
     return sen
 
 

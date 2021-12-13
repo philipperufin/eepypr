@@ -18,7 +18,7 @@ ee.Initialize()
 ###########################################################
 ###########################################################
 # local shapefile with training points
-point_shape = r'D:\PRJ_TMP\FSDA\data\NICFI_LC\train_lichinga_stratrand_fnds_40.shp'
+point_shape = r'D:\PRJ_TMP\FSDA\data\vector\reference_NICFI_LC\train\train_lichinga_stratrand_fnds_40.shp'
 points = gpd.read_file(point_shape)
 
 points.crs
@@ -29,9 +29,6 @@ points["class"].value_counts()
 
 add_elevation = True
 add_latlon = True
-
-
-# subset points in year
 
 
 for col in points.columns:
@@ -57,7 +54,8 @@ ptsfc = ee.FeatureCollection(point_f)
 ###########################################################
 ###########################################################
 # stm asset
-stm_image = ee.Image('users/philipperufin/fsda_lichinga_psm_coreg_100m_ssnl_annl_stm_2021')
+i = 33
+stm_image = ee.Image('users/philipperufin/fsda_tiles/fsda_tile_03deg_' + f'{int(i):03}' + '_psm_coreg_3season_stm')
 
 ###########################################################
 ###########################################################
@@ -107,6 +105,16 @@ bands = ['s01_b_p50', 's01_g_p50', 's01_r_p50', 's01_n_p50', 's01_ndvi_p50',
 
          'elevation', 'slope', 'longitude', 'latitude']
 
+bands =  ['s1_green_p50', 's1_red_p50', 's1_nir_p50', 's1_ndvi_p50', 's1_ndvi_p75',
+          's2_green_p50', 's2_red_p50', 's2_nir_p50', 's2_ndvi_p50', 's2_ndvi_p75',
+          's3_green_p50', 's3_red_p50', 's3_nir_p50', 's3_ndvi_p50', 's3_ndvi_p75',
+
+          's3_ndvi_p50_p50_20', 's3_ndvi_p50_p50_20ndi',
+          's3_ndvi_p50_p50_100', 's3_ndvi_p50_p50_100ndi',
+
+          'elevation', 'slope', 'longitude', 'latitude']
+
+
 classifier = ee.Classifier.smileRandomForest(250).train(stm, 'class', bands)
 #print('RF accuracy: ', classifier.confusionMatrix().accuracy().getInfo())
 #print('RF error matrix: ', classifier.confusionMatrix().getInfo())
@@ -115,23 +123,41 @@ classifier = ee.Classifier.smileRandomForest(250).train(stm, 'class', bands)
 ###########################################################
 
 # ee roi geometry
-roi_shp = gpd.read_file(r'D:\PRJ_TMP\FSDA\data\NICFI_LC\lichinga.shp')
+#roi_shp = gpd.read_file(r'D:\PRJ_TMP\FSDA\data\NICFI_LC\lichinga.shp')
+#g = json.loads(roi_shp.to_json())
+#coords = list(g['features'][0]['geometry']['coordinates'])
+#roi = ee.Geometry.Polygon(coords)
 
-g = json.loads(roi_shp.to_json())
+roi_path = r'D:\PRJ_TMP\FSDA\data\vector\roi\grid\grid_space_030deg_buffer_001deg.shp'
+roi_shp = gpd.read_file(roi_path)
+tile = roi_shp[roi_shp['id'] == i]
+g = json.loads(tile.to_json())
 coords = list(g['features'][0]['geometry']['coordinates'])
-roi = ee.Geometry.Polygon(coords)
+roi_poly = ee.Geometry.Polygon(coords)
 
 
 print('setting up prediction')
+stm_image = ee.Image('users/philipperufin/fsda_tiles/fsda_tile_03deg_' + f'{int(i):03}' + '_psm_coreg_3season_stm')
+if add_elevation == True:
+    srtm = ee.Image("NASA/NASADEM_HGT/001").select('elevation')
+    slope = ee.Terrain.slope(srtm).multiply(100).rename('slope')
+    stm_image = ee.Image([stm_image, srtm, slope])
+
+# add lat lon layers
+if add_latlon == True:
+    crd_image = ee.Image.pixelLonLat()
+    stm_image = ee.Image([stm_image, crd_image])
+
 map = stm_image.classify(classifier).toInt8()
 
 # export as asset
 task = ee.batch.Export.image.toAsset(**{
     'image': map,
     'scale': 4.77,
-    'region': roi,
-    'description': 'nicfi_lc_lichinga_coreg_100m_ssnl_annl_stm_2021',
-    'assetId': 'users/philipperufin/nicfi_lc_lichinga_coreg_100m_ssnl_annl_stm_2021',
+    'region': roi_poly,
+    'description': 'nicfi_lc_binary__tile_03deg_' + f'{int(i):03}' + '_psm_coreg_3season_stm',
+    'assetId': 'users/philipperufin/nicfi_lc_binary_tile_03deg_' + f'{int(i):03}' + '_psm_coreg_3season_stm',
     'maxPixels': 1e13
 })
 task.start()
+

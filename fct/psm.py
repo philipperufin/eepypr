@@ -31,15 +31,16 @@ def PSM(startDate, endDate):
 
     return psm
 
-def PSM_COREG(startDate, endDate, roi_path,\
-              property='system:index', reference_id='planet_medres_normalized_analytic_2021-05_mosaic',\
+def PSM_COREG(startDate, endDate, roi,\
+              property='system:index', reference_id='planet_medres_normalized_analytic_2021-06_mosaic',\
               band='nir', maxOffset=100):
 
-    # define roi
-    roi_shp = gpd.read_file(roi_path)
-    g = json.loads(roi_shp.to_json())
-    coords = list(g['features'][0]['geometry']['coordinates'])
-    roi = ee.Geometry.Polygon(coords)
+    if isinstance(roi, str):
+        # define roi
+        roi_shp = gpd.read_file(roi)
+        g = json.loads(roi_shp.to_json())
+        coords = list(g['features'][0]['geometry']['coordinates'])
+        roi = ee.Geometry.Polygon(coords)
 
     bands = ee.List(['B', 'G', 'R', 'N'])
     band_names = ee.List(['blue', 'green', 'red', 'nir'])
