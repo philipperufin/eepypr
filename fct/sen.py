@@ -12,6 +12,8 @@
 
 import ee
 import datetime
+import geopandas as gpd
+import json
 import fct.cld
 
 def SEN(startDate, endDate, cdi=True):
@@ -54,3 +56,35 @@ def SEN_TOA(startDate, endDate):
                 .map(fct.cld.maskS2cdi) \
                 .select(bands, band_names)
     return sen
+
+def SEN4REG(startDate, endDate, roi_shape, band, assetName):
+    # startDate / endDate in datetime format
+    # roi_shape as filepath to extent shapefile with one feature
+    # assetname without path
+
+    print('create seasonal median ' + band + ' from S2 L2A')
+    # open roi
+    roi_shp = gpd.read_file(roi_shape)
+    g = json.loads(roi_shp.to_json())
+    coords = list(g['features'][0]['geometry']['coordinates'])
+    print('bounding box: ')
+    print(coords)
+    roi = ee.Geometry.Polygon(coords)
+
+    # create reference median nir
+    sen4reg = fct.sen.SEN(startDate, endDate, cdi=True).select(band)\
+        .reduce(ee.Reducer.percentile([50]))\
+        .rename(band+'_med').toInt16()
+
+    task = ee.batch.Export.image.toAsset(**{
+        'image': sen4reg,
+        'scale': 10,
+        'region': roi,
+        'description': assetName,
+        'assetId': 'users/philipperufin/'+assetName,
+        'maxPixels': 1e13
+    })
+    print('initiating export to asset:')
+    print('users/philipperufin/'+assetName)
+
+    task.start()
