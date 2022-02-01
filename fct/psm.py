@@ -9,7 +9,8 @@
 # startDate and endDate to be provided as datetime
 # mark beginning and end of collection period.
 #######################################################
-
+# region_keys listed 'africa', 'americas', 'asia'
+#######################################################
 
 import ee
 import datetime
@@ -17,12 +18,12 @@ import json
 import geopandas as gpd
 
 
-def PSM(startDate, endDate):
+def PSM(startDate, endDate, region_key='africa'):
 
     bands = ee.List(['B', 'G', 'R', 'N'])
     band_names = ee.List(['blue', 'green', 'red', 'nir'])
 
-    psm = ee.ImageCollection("projects/planet-nicfi/assets/basemaps/africa")\
+    psm = ee.ImageCollection("projects/planet-nicfi/assets/basemaps/"+region_key)\
                 .filter(ee.Filter.date(startDate, endDate))\
                 .select(bands, band_names)
 
@@ -31,7 +32,7 @@ def PSM(startDate, endDate):
 
     return psm
 
-def PSM_COREG(startDate, endDate, roi,\
+def PSM_COREG(startDate, endDate, roi, region_key='africa',\
               property='system:index', reference_id='planet_medres_normalized_analytic_2021-06_mosaic',\
               band='nir', maxOffset=100):
 
@@ -46,7 +47,7 @@ def PSM_COREG(startDate, endDate, roi,\
     band_names = ee.List(['blue', 'green', 'red', 'nir'])
 
     # fetch collection and rename bands
-    psm = ee.ImageCollection("projects/planet-nicfi/assets/basemaps/africa")\
+    psm = ee.ImageCollection("projects/planet-nicfi/assets/basemaps/"+region_key)\
                 .select(bands, band_names)
 
     psm = psm.map(lambda image: image.addBands(image.normalizedDifference(['nir', 'red'])\
@@ -93,7 +94,7 @@ def PSM_COREG(startDate, endDate, roi,\
     psm_reg = ee.ImageCollection(images)
     return psm_reg
 
-def PSM_REG2SEN(startDate, endDate, roi, ref_img='users/philipperufin/sen4reg_cdi_2020-09-12',
+def PSM_REG2SEN(startDate, endDate, roi, region_key='africa',ref_img='users/philipperufin/sen4reg_cdi_2020-09-12',
                                    ref_bnd='nir_med', trg_bnd='nir', mo=100, st=5):
 
     if isinstance(roi, str):
@@ -107,7 +108,7 @@ def PSM_REG2SEN(startDate, endDate, roi, ref_img='users/philipperufin/sen4reg_cd
     band_names = ee.List(['blue', 'green', 'red', 'nir'])
 
     # fetch collection and rename bands
-    psm = ee.ImageCollection("projects/planet-nicfi/assets/basemaps/africa")\
+    psm = ee.ImageCollection("projects/planet-nicfi/assets/basemaps/"+region_key)\
                 .select(bands, band_names)
 
     psm = psm.map(lambda image: image.addBands(image.normalizedDifference(['nir', 'red'])\
