@@ -125,10 +125,11 @@ def PSM_REG2SEN(startDate, endDate, roi, region_key='africa',ref_img='users/phil
     ids = psm.aggregate_array('system:index').getInfo()
 
     for id in ids:
-        print(id)
 
         to_reg = ee.Image(psm.filterMetadata('system:index', 'equals', id).first()).clip(roi)
-        print('do coreg')
+
+        #print(id)
+        #print('do coreg')
 
         # choose to register using only the 'NIR' band.
         to_reg_nir = to_reg.select(trg_bnd)
