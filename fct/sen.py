@@ -40,8 +40,10 @@ def SEN(startDate, endDate, cdi=True):
             .map(fct.cld.maskS2cdi) \
             .select(bands, band_names)
 
-    sen = sen.map(lambda image: image.addBands(image.normalizedDifference(['broadnir', 'red']) \
+    sen = sen.map(lambda image: image.addBands(image.normalizedDifference(['nir', 'red']) \
                                                .multiply(10000).toInt16().rename('ndvi')))
+    sen = sen.map(lambda image: image.addBands(image.normalizedDifference(['nir', 'swir1']) \
+                                               .multiply(10000).toInt16().rename('ndmi')))
     return sen
 
 
