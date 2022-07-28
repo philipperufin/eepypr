@@ -1,20 +1,25 @@
-# ee.pypr, philippe rufin 2020
-# philippe.rufin@googlemail.com
+'''
 #######################################################
-# SEN function returns quality-masked S2AB
-# collections, renamed B, G, R, NIR, SWIR1, SWIR2 to
-# blue, green, red, nir, swir1, swir2 for consistent use.
-#######################################################
-# startDate and endDate to be provided as datetime
-# mark beginning and end of collection period.
-#######################################################
+eepypr
+Functions returning  function returns quality-masked S2AB
+collections
 
+startDate / endDate must be provided as datetime object
+mark beginning and end of collection period.
+
+region_key must be one of the following:
+'africa', 'americas', 'asia'
+
+bands B, G, R, NIR renamed to blue, green, red, nir.
+ndvi band added
+#######################################################
+'''
 
 import ee
 import datetime
 import geopandas as gpd
 import json
-import fct.cld
+import src.cld
 
 def SEN(startDate, endDate, cdi=True):
     if cdi==False:
@@ -24,7 +29,7 @@ def SEN(startDate, endDate, cdi=True):
         sen = ee.ImageCollection('COPERNICUS/S2_SR')\
                     .filter(ee.Filter.date(startDate, endDate))\
                     .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 50))\
-                    .map(fct.cld.maskS2scl)\
+                    .map(src.cld.maskS2scl)\
                     .select(bands, band_names)
 
     if cdi==True:
@@ -36,8 +41,8 @@ def SEN(startDate, endDate, cdi=True):
         sen = ee.ImageCollection('COPERNICUS/S2_SR') \
             .filter(ee.Filter.date(startDate, endDate)) \
             .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 50)) \
-            .map(fct.cld.maskS2scl) \
-            .map(fct.cld.maskS2cdi) \
+            .map(src.cld.maskS2scl) \
+            .map(src.cld.maskS2cdi) \
             .select(bands, band_names)
 
     sen = sen.map(lambda image: image.addBands(image.normalizedDifference(['nir', 'red']) \
@@ -55,7 +60,7 @@ def SEN_TOA(startDate, endDate):
     sen = ee.ImageCollection('COPERNICUS/S2')\
                 .filter(ee.Filter.date(startDate, endDate)) \
                 .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 50)) \
-                .map(fct.cld.maskS2cdi) \
+                .map(src.cld.maskS2cdi) \
                 .select(bands, band_names)
     return sen
 
@@ -74,7 +79,7 @@ def SEN4REG(startDate, endDate, roi_shape, band, assetName):
     roi = ee.Geometry.Polygon(coords)
 
     # create reference median nir
-    sen4reg = fct.sen.SEN(startDate, endDate, cdi=True).select(band)\
+    sen4reg = src.sen.SEN(startDate, endDate, cdi=True).select(band)\
         .reduce(ee.Reducer.percentile([50]))\
         .rename(band+'_med').toInt16()
 

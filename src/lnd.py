@@ -1,18 +1,21 @@
-# ee.pypr, philippe rufin 2020
-# philippe.rufin@googlemail.com
+'''
 #######################################################
-# LND function returns quality-masked TM, ETM+, and OLI
-# collections, renamed B, G, R, NIR, SWIR1, SWIR2 to
-# blue, green, red, nir, swir1, swir2 for consistent use.
-#######################################################
-# startDate and endDate to be provided as datetime
-# mark beginning and end of collection period.
-#######################################################
+eepypr
+Functions returning quality-masked TM, ETM+, and OLI
+collections, bands B, G, R, NIR, SWIR1, SWIR2 renamed to
+blue, green, red, nir, swir1, swir2 for consistent use.
 
+This code is written for Landsat collection 1,
+modifications for collection 2 are coming up.
+
+startDate and endDate must be provided as datetime object
+mark beginning and end of collection period.
+#######################################################
+'''
 
 import ee
 import datetime
-import fct.cld
+import src.cld
 
 # function to harmonize l8 surface reflectance with coefficients from Roy et al. 2016
 def L8_harmonize(image):
@@ -28,7 +31,7 @@ def L8_harmonize(image):
                    .copyProperties(image, image.propertyNames()))
     return out
 
-# todo: make sure start and endDate are datetime objects
+# todo: add check for startDate and endDate == datetime objects
 def LND(startDate, endDate, roi=None, addNDVI=False, addEVI=True, cc=70, slc_off_out=False, l8_harmonize=False):
     l4 = ee.ImageCollection('LANDSAT/LT04/C01/T1_SR') \
         .filterDate(startDate, endDate) \
@@ -65,7 +68,7 @@ def LND(startDate, endDate, roi=None, addNDVI=False, addEVI=True, cc=70, slc_off
         l8 = l8.map(L8_harmonize)
 
     lnd = l8.merge(l7).merge(l5).merge(l4)
-    lnd = lnd.map(fct.cld.maskQuality)
+    lnd = lnd.map(src.cld.maskLNDquality)
 
     if addNDVI == True:
         lnd = lnd.map(lambda image: image.addBands(image.normalizedDifference(['nir', 'red'])
@@ -86,7 +89,6 @@ def LND(startDate, endDate, roi=None, addNDVI=False, addEVI=True, cc=70, slc_off
     return lnd
 
 
-# todo: make sure start and endDate are datetime objects
 def OLI(startDate, endDate, roi=None, addNDVI=False, addEVI=True, cc=70, l8_harmonize=False):
 
     l8 = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR')\
@@ -101,7 +103,7 @@ def OLI(startDate, endDate, roi=None, addNDVI=False, addEVI=True, cc=70, l8_harm
 
     # print collection sizes
     lnd = l8
-    lnd = lnd.map(fct.cld.maskQuality)
+    lnd = lnd.map(src.cld.maskLNDquality)
     print('LND: ' + str(lnd.size().getInfo()))
 
     if addNDVI == True:

@@ -1,7 +1,14 @@
+'''
+#######################################################
+eepypr
+Functions converting polygons into ee.Geometry
+or points into ee.FeatureCollections
+#######################################################
+'''
+
 import ee
 import json
 import geopandas as gpd
-
 
 def feat2ee(feature):
     g = json.loads(feature.to_json())
@@ -13,7 +20,6 @@ def shape2ee(file_path):
     g = json.loads(shape.to_json())
     coords = list(g['features'][0]['geometry']['coordinates'])
     return ee.Geometry.Polygon(coords)
-
 
 def points2ee(file_path):
     points = gpd.read_file(file_path)

@@ -1,18 +1,25 @@
-# ee.pypr, philippe rufin 2020
-# philippe.rufin@googlemail.com
-# inspired by baumi-berlin
+'''
+#######################################################
+eepypr
+Functions returning predefined spectral-temporal metrics
+for Landsat C1, Sentinel-2, and PlanetScope image collections
+
+startDate / endDate must be provided as datetime object
+mark start and end of aggregation period.
+#######################################################
+'''
 
 import ee
 import csv
 import ogr
-import fct.lnd
-import fct.sen
-import fct.psm
+import src.lnd
+import src.sen
+import src.psm
 
-# todo: allow multiple aggregation windows simultaneously
+# todo: allow band selection and multiple aggregation windows and reducers
 def LND_STM(startDate, endDate):
 
-    collection = fct.lnd.LND(startDate, endDate)
+    collection = src.lnd.LND(startDate, endDate)
     coll = collection.select('blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'evi')
 
     median = coll.reduce(ee.Reducer.percentile([50]))\
@@ -30,16 +37,12 @@ def LND_STM(startDate, endDate):
     iqr = p75.subtract(p25)\
         .rename('blue_iqr', 'green_iqr', 'red_iqr', 'nir_iqr', 'swir1_iqr', 'swir2_iqr', 'evi_iqr')
 
-    #imean = coll.reduce(ee.Reducer.intervalMean(25, 75))\
-    #    .rename('blue_imean', 'green_imean', 'red_imean', 'nir_imean', 'swir1_imean', 'swir2_imean', 'evi_imean')
-
-    #return ee.Image([median, sd, p25, p75, iqr, imean])
     return ee.Image([median, sd, p25, p75, iqr])
 
-# todo: allow multiple aggregation windows simultaneously
+
 def SEN_STM(startDate, endDate):
 
-    collection = fct.sen.SEN(startDate, endDate)
+    collection = src.sen.SEN(startDate, endDate)
     coll = collection.select('blue', 'green', 'red','rededge1', 'rededge2', 'rededge3', 'nir', 'broadnir', 'swir1', 'swir2', 'ndvi')
 
     median = coll.reduce(ee.Reducer.percentile([50]))\
@@ -63,13 +66,12 @@ def SEN_STM(startDate, endDate):
     return ee.Image([median, sd, p25, p75, iqr, imean])
 
 
-# todo: allow multiple aggregation windows simultaneously
 def PSM_STM(startDate, endDate, roi_path, register=False):
     if register==False:
-        collection = fct.psm.PSM(startDate, endDate)
+        collection = src.psm.PSM(startDate, endDate)
 
     if register==True:
-        collection = fct.psm.PSM_COREG(startDate, endDate, roi_path, property='system:index', reference_id='planet_medres_normalized_analytic_2021-05_mosaic')
+        collection = src.psm.PSM_COREG(startDate, endDate, roi_path, property='system:index', reference_id='planet_medres_normalized_analytic_2021-05_mosaic')
 
     coll = collection.select('blue', 'green', 'red', 'nir', 'ndvi')
 
@@ -88,60 +90,7 @@ def PSM_STM(startDate, endDate, roi_path, register=False):
     iqr = p75.subtract(p25)\
         .rename('blue_iqr', 'green_iqr', 'red_iqr', 'nir_iqr', 'ndvi_iqr')
 
-    #imean = coll.reduce(ee.Reducer.intervalMean(25, 75))\
-    #    .rename('blue_imean', 'green_imean', 'red_imean', 'nir_imean', 'swir1_imean', 'swir2_imean', 'evi_imean')
-
-    #return ee.Image([median, sd, p25, p75, iqr, imean])
     return ee.Image([median, sd, p25, p75, iqr])
-
-def STM_CSV(point_shape, startDate, endDate, write, out_path):
-
-    stm_image = ee.ImageCollection(fct.stm.LND_STM(startDate, endDate))
-
-    stm_list = []
-
-    driver = ogr.GetDriverByName("ESRI Shapefile")
-    dataSource = driver.Open(point_shape, 0)
-    layer = dataSource.GetLayer()
-    feat = layer.GetNextFeature()
-
-    while feat:
-        id = feat.GetField("ID")
-        print("point id " + str(id))
-
-        xCoord = feat.GetGeometryRef().GetPoint()[0]
-        yCoord = feat.GetGeometryRef().GetPoint()[1]
-        pts = {'type': 'Point', 'coordinates': [xCoord, yCoord]}
-
-        stm = stm_image.getRegion(pts, 30).getInfo()
-        stm[0].append("ID")
-        stm[1].append(id)
-
-        # Append to output then get next feature
-        stm_list.append(stm)
-        feat = layer.GetNextFeature()
-
-    if write == True:
-
-        print("write output table")
-        with open(out_path, "w") as theFile:
-            csv.register_dialect("custom", delimiter=",", skipinitialspace=True, lineterminator='\n')
-            writer = csv.writer(theFile, dialect="custom")
-            # Write the complete set of values (incl. the header) of the first entry
-            for element in stm_list[0]:
-                writer.writerow(element)
-            stm_list.pop(0)
-            # Now write the remaining entries, always pop the header
-            for element in stm_list:
-                element.pop(0)
-                for row in element:
-                    writer.writerow(row)
-
-    return stm_list
-
-
-##################################
-# function to get pixel-wise clear obs count
 
 
 def LND_NUM(startDate, endDate, roi=None):
@@ -159,7 +108,7 @@ def LND_NUM(startDate, endDate, roi=None):
 
         return image.addBands(cfmask_layer.rename('cfmask'))
 
-    lnd = fct.lnd.LND(startDate, endDate).map(cfmask)
+    lnd = src.lnd.LND(startDate, endDate).map(cfmask)
 
     # calculate clear observation counts
     def dailymosaic(delta):
@@ -178,7 +127,6 @@ def LND_NUM(startDate, endDate, roi=None):
                                                   .difference(ee.Date(startDate.strftime("%Y-%m-%d")), 'day')\
                                                   .subtract(1))\
                                                   .map(dailymosaic))
-
 
     if roi != None:
         lnd_cnt = lnd_cnt.filterBounds(roi)
