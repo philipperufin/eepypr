@@ -18,9 +18,9 @@ roi = src.vec.shape2ee(roi_file)
 
 asset_folder = 'users/username/' # must exist
 
-tempbins = [[datetime.datetime(2020, 9, 1), datetime.datetime(2020, 12, 31), 'sen4reg_cdi_2020-09-12'],
-            [datetime.datetime(2021, 1, 1), datetime.datetime(2021,  4, 30), 'sen4reg_cdi_2021-01-04'],
-            [datetime.datetime(2021, 5, 1), datetime.datetime(2021,  8, 31), 'sen4reg_cdi_2021-05-08']]
+tempbins = [[datetime.datetime(2021, 9, 1), datetime.datetime(2021, 12, 31), 'sen4reg_cdi_2021-09-12'],
+            [datetime.datetime(2022, 1, 1), datetime.datetime(2022,  4, 30), 'sen4reg_cdi_2022-01-04'],
+            [datetime.datetime(2022, 5, 1), datetime.datetime(2022,  8, 31), 'sen4reg_cdi_2022-05-08']]
 
 ############################################
 ############################################

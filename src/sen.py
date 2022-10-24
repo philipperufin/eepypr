@@ -26,7 +26,7 @@ def SEN(startDate, endDate, cdi=True):
         bands = ee.List(['B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B8A', 'B11', 'B12', 'QA60', 'SCL'])
         band_names = ee.List(['blue', 'green', 'red', 'rededge1', 'rededge2', 'rededge3', 'nir', 'broadnir', 'swir1', 'swir2', 'QA60', 'SCL'])
 
-        sen = ee.ImageCollection('COPERNICUS/S2_SR')\
+        sen = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED')\
                     .filter(ee.Filter.date(startDate, endDate))\
                     .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 50))\
                     .map(src.cld.maskS2scl)\
@@ -38,7 +38,7 @@ def SEN(startDate, endDate, cdi=True):
             ['blue', 'green', 'red', 'rededge1', 'rededge2', 'rededge3', 'nir', 'broadnir', 'swir1', 'swir2', 'QA60',
              'SCL', 'CDI'])
 
-        sen = ee.ImageCollection('COPERNICUS/S2_SR') \
+        sen = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \
             .filter(ee.Filter.date(startDate, endDate)) \
             .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 50)) \
             .map(src.cld.maskS2scl) \
@@ -57,7 +57,7 @@ def SEN_TOA(startDate, endDate):
     bands = ee.List(['B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B8A', 'B11', 'B12', 'QA60', 'CDI'])
     band_names = ee.List(['blue', 'green', 'red', 'rededge1', 'rededge2', 'rededge3', 'nir', 'broadnir', 'swir1', 'swir2', 'QA60', 'CDI'])
 
-    sen = ee.ImageCollection('COPERNICUS/S2')\
+    sen = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED')\
                 .filter(ee.Filter.date(startDate, endDate)) \
                 .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 50)) \
                 .map(src.cld.maskS2cdi) \
