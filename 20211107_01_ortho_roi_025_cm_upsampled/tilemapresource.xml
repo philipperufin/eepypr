@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <TileMap version="1.0.0" tilemapservice="http://tms.osgeo.org/1.0.0">
+      <Title>20211107_01_ortho_roi_025_cm_upsampled.tif</Title>
+      <Abstract></Abstract>
+      <SRS>EPSG:3857</SRS>
+      <BoundingBox minx="35.38028774650613" miny="-13.34888230574329" maxx="35.38251617494326" maxy="-13.34675456051434"/>
+      <Origin x="35.38028774650613" y="-13.34888230574329"/>
+      <TileFormat width="256" height="256" mime-type="image/png" extension="png"/>
+      <TileSets profile="mercator">
+        <TileSet href="17" units-per-pixel="1.19432856674194" order="17"/>
+        <TileSet href="18" units-per-pixel="0.59716428337097" order="18"/>
+        <TileSet href="19" units-per-pixel="0.29858214168549" order="19"/>
+      </TileSets>
+    </TileMap>
+    
