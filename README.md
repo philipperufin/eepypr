@@ -19,3 +19,6 @@ Key functionalities vary across sensors but include
 
 ## References 
 The functions in this module were created and used in research conducted at Humboldt-Universität zu Berlin (Germany) and UCLouvain (Belgium), such as a paper on [large-area mapping of smallholder agriculture](https://doi.org/10.1016/j.jag.2022.102937), or [mapping post-Soviet cropping practices upstream of the Aral Sea basin](https://doi.org/10.1088/1748-9326/ac8daa). For further information read the function descriptions or contact philippe.rufin@uclouvain.be.
+
+## Suggested Alternatives
+I warmly recommend using the richer and more user-friendly GEEO library developed by my colleague Leon Nill: https://github.com/leonsnill/geeo/
