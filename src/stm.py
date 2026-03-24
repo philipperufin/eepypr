@@ -11,7 +11,7 @@ mark start and end of aggregation period.
 
 import ee
 import csv
-import ogr
+from osgeo import ogr
 import src.lnd
 import src.sen
 import src.psm
