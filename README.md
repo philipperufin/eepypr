@@ -16,6 +16,7 @@ Key functionalities vary across sensors but include
 - **app/** application examples
     - **nicfi stm** generate spectral-temporal metrics from NICFI PlanetScope mosaics with optional coregistration based on Sentinel-2
     - **aralsea_stm** spectral-temporal metrics from Landsat Collection 1 data
+    - **crop_types** crop type & intercropping mapping in Oyo state, Nigeria
 
 ## References 
 The functions in this module were created and used in research conducted at Humboldt-Universität zu Berlin (Germany) and UCLouvain (Belgium), such as a paper on [large-area mapping of smallholder agriculture](https://doi.org/10.1016/j.jag.2022.102937), or [mapping post-Soviet cropping practices upstream of the Aral Sea basin](https://doi.org/10.1088/1748-9326/ac8daa). For further information read the function descriptions or contact philippe.rufin@uclouvain.be.
